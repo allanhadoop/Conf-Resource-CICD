@@ -1,5 +1,106 @@
 # Source https://docs.chef.io/knife_using.html
+# A typical Chef setup is comprised of three elements – your workstation, a Chef server, and nodes.
 
+Your workstation------- a Chef server-------- nodes
+
+# Chef server acts as a central repository for your Chef code as well as for information about every node it manages.
+# A node is any computer that is managed by a Chef server.
+# In practice, you use Chef to manage your servers remotely, typically from a Windows, Mac OS, or Linux workstation. Although you're configuring Ubuntu in this tutorial, your workstation can be any OS you choose.
+# The normal Chef workflow starts from your workstation. There you use the Chef Development Kit, or Chef DK, to write and verify your configuration policy by writing Chef code.
+# From there, you upload your Chef code to theChef server and then run Chef client on your node. Your node downloads the latest code from the Chef server and runs that code to bring your node's configuration up to date. You might set up your node to check in periodically with the Chef server or update your node on demand when your configuration policy changes.
+
+-------------------------------
+mkdir chef-repo 
+cd chef-repo 
+touch hello.rb    #first simple receipe 
+file '/tmp/motd' do
+  content 'hello world'
+end
+
+# now apply chef-client command to apply this to nodes. Typically, chef-client downloads and runs the latest Chef code from the 
+# Chef server, but in this lesson, you'll run chef-client in what's called local mode to apply Chef code that exists locally on your server.
+
+cd chef-repo
+chef-client --local-mode hello.rb   #this wil create new file motd at /tmp and then 
+
+# Systems managed by Chef typically interact with a Chef server. So in practice, you typically omit the --local-mode argument when 
+# you run chef-client to have your node check in with the Chef server to retrieve the latest cookbooks and system metadata. 
+# For learning purposes, in this tutorial you use the --local-mode argument to apply a cookbook directly to see how Chef works. 
+# if you run the command, nothing happens - Chef looks at the current configuration state and applies the action only if the 
+# current state doesn't match the desired state
+
+#Let's delete hello.rb by creating another receipe
+cd chef-repo
+sudo nano deletehello.rb
+file '/tmp/motd' do
+  action :delete
+end
+chef-client --local-mode deletehello.rb 
+
+----->so file is one type of resource in chef world , hello.rb was a receipe(ordered series of configuration states) .A recipe is a file that holds one or more resources
+----->Each resource declares what state a part of the system should be in, such as a package that should be installed, a service that should be running, or a file that should be generated.
+----->These receipe are called knife.rb code.
+
+Receipe(e.g. hello.rb code) ----> Resource(e.g. file command)--->Action (e.g.delete) 
+------------------------------------------------------------------------------
+# Configure Apache webser - apt-update/package/service resources
+cd chef-repo
+
+sudo nano webserver.rb
+apt_update 'Update the apt cache daily' do
+  frequency 86_400       #every 24 hours 
+  action :periodic
+end
+package 'apache2'
+service 'apache2' do
+  supports :status => true    #this part tells Chef that the apache2 init script supports the status message
+  action [:enable, :start]
+end
+
+
+> cd chef-repo
+sudo chef-client --local-mode webserver.rb 
+------------------------------------------------------------------------------
+# Add a homepage to apache server installed above . 
+# modify webserver.rb to add homepage code below
+
+file '/var/www/html/index.html' do
+  content '<html>
+  <body>
+    <h1>hello world</h1>
+  </body>
+</html>'
+end
+
+# now curl to test if homepage works 
+curl localhost 
+# All code above in receipe is executing code in sequential manner...
+------------------------------------------------------------------------------
+# So problem above is receipe code for your HTML page was embedded in the Chef recipe.
+# How to address above problem - use cookbook
+
+cd chef-repo
+mkdir mycookbooks
+chef generate cookbook mycookbooks/learn_chef_apache2        #This tells Chef to create a cookbook named learn_chef_apache2 under the cookbooks directory.
+tree mycookbooks
+mycookbooks
+└── learn_chef_apache2
+    ├── Berksfile
+    ├── README.md
+    ├── chefignore
+    ├── metadata.rb
+    ├── recipes
+    │   └── default.rb
+    ├── spec
+    │   ├── spec_helper.rb
+    │   └── unit
+    │       └── recipes
+    │           └── default_spec.rb
+    └── test
+        └── recipes
+            └── default_test.rb
+
+------------------------------------------------------------------------------
 
 
 
