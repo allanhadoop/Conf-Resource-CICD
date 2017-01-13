@@ -101,6 +101,66 @@ mycookbooks
             └── default_test.rb
 
 ------------------------------------------------------------------------------
+# Build COOKBOOK 
+1.  Generate html file for homepage
+chef generate template mycookbooks/learn_chef_apache2 index.html
+>tree mycookbooks  
+mycookbooks
+└── learn_chef_apache2
+    ├── Berksfile
+    ├── README.md
+    ├── chefignore
+    ├── metadata.rb
+    ├── recipes
+    │   └── default.rb
+    ├── spec
+    │   ├── spec_helper.rb
+    │   └── unit
+    │       └── recipes
+    │           └── default_spec.rb
+    ├── templates
+    │   ├── default
+    │   └── index.html.erb             # see new tab template with index.html.erb got generated now.
+    └── test
+        └── recipes
+            └── default_test.rb
+
+# Add below code to index.html.erp file abpve 
+<html>
+  <body>
+    <h1>hello world</h1>
+  </body>
+</html>
+# In practice, your web site content would more likely be some build artifact, for example a .zip file on your build server. 
+# With Chef, you could pull updated web content from your build server and deploy it to your web server.
+# Now reference above file at default.rb receipt located under receipt folder above under mycookbooks
+
+apt_update 'Update the apt cache daily' do
+  frequency 86_400
+  action :periodic
+end
+
+package 'apache2'
+
+service 'apache2' do
+  supports :status => true
+  action [:enable, :start]
+end
+
+template '/var/www/html/index.html' do
+  source 'index.html.erb'
+end
+
+> sudo chef-client --local-mode --runlist 'recipe[learn_chef_apache2]'     
+# --runlist means it can contain multiple recipes from multiple cookbooks.The run-list lets you specify which recipes to run, and the order in which to run them
+# In this example, recipe[learn_chef_apache2] is the same as specifying recipe[learn_chef_apache2::default], 
+# meaning we want to run the learn_chef_apache2 cookbook's default recipe, default.rb.
+--- A cookbook groups together recipes and other information in a way that is more manageable than having just recipes alone.
+
+------------------------------------------------------------------------------
+# Manage Node -- 
+
+
 
 
 
