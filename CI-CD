@@ -1,7 +1,13 @@
-# Canary Release - 
+# Canary Release -
 Canary deployments are a pattern for rolling out releases to a subset of users or servers. 
 The idea is to first deploy the change to a small subset of servers, test it, and then roll the change out to the rest of the servers. ...
 The basic steps of a canary deployment are: Deploy to one or more canary servers
 
-# 
+# Blue-Green deployment - Blue-green deployment is a release technique that reduces downtime and risk by running two identical 
+production environments called Blue and Green. At any time, only one of the environments is live, with the live environment serving 
+all production traffic. ... Green is now live, and Blue is idle
+
+--------------------------------------------------------------
+# Building RPM package source -  http://www.tldp.org/HOWTO/RPM-HOWTO/build.html
+
 
