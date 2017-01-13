@@ -9,7 +9,7 @@ Your workstation------- a Chef server-------- nodes
 # The normal Chef workflow starts from your workstation. There you use the Chef Development Kit, or Chef DK, to write and verify your configuration policy by writing Chef code.
 # From there, you upload your Chef code to theChef server and then run Chef client on your node. Your node downloads the latest code from the Chef server and runs that code to bring your node's configuration up to date. You might set up your node to check in periodically with the Chef server or update your node on demand when your configuration policy changes.
 
--------------------------------
+-------------------------------BELOW CODE goes on workstation or on CHEF DEVELOPMENT KIT BOX --------------------
 mkdir chef-repo 
 cd chef-repo 
 touch hello.rb    #first simple receipe 
@@ -157,9 +157,35 @@ end
 # meaning we want to run the learn_chef_apache2 cookbook's default recipe, default.rb.
 --- A cookbook groups together recipes and other information in a way that is more manageable than having just recipes alone.
 
-------------------------------------------------------------------------------
-# Manage Node -- 
+-----------------------------------------------------BELOW CODE goes on Chef SERVER BOX ------------------------------------
+# learn how the Chef server acts as a central repository for your cookbooks and for information about your servers, or nodes
+# Use AWS OpsWorks for Chef Automate, a managed service that runs on Amazon Web Services that includes a Chef server and Chef Automate.
+# Hosted Chef and OpsWorks for Chef Automate are the fastest ways to set up a Chef server.
+# Chef server knows a node's fully qualified domain name (FQDN) and its platform.
+# A node is any computer that is managed by a Chef server. Every node has the Chef client installed on it. 
+# The Chef client talks to the Chef server. A node can be any physical or virtual machine in your network.
 
+--some theory -
+Chef Automate extends this setup by giving your operations and development teams a common platform for developing, building, 
+testing, and deploying cookbooks, applications, and more. It enables multiple teams to work together on systems made up of many 
+different components and services, and promotes the DevOps principles of cross-team collaboration, cooperation, and transparency.
+You access Chef Automate's visibility feature through a web interface
+# In this we will see, Chef server and a Chef Automate server and use Chef Automate's visibility feature to gain insight into what's 
+# happening on your Chef server to better understand what happens when chef-client runs on your nodes
+
+------Agenda
+1. bring up an OpsWorks for Chef Automate installation and a node to manage.
+2. write Chef code to define a policy from your workstation.
+3. apply that policy to a node.
+4. update your policy and apply it to a node.
+5. understand how to diagnose and resolve a failed chef-client run.
+6. use Chef Automate's visibility feature to visualize the status of your nodes.
+7. set up chef-client to run periodically.
+8. use search to run chef-client on multiple nodes.
+9. use roles to define your node's behavior and attributes based on its function.
+--------------------------------------------------------------------------------------------------
+# 1. bring up an OpsWorks for Chef Automate installation and a node to manage.
+so we need 2 systems and then AWS OpsWorks for chef automation 
 
 
 
