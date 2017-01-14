@@ -186,8 +186,8 @@ You access Chef Automate's visibility feature through a web interface
 --------------------------------------------------------------------------------------------------
 # 1. bring up an OpsWorks for Chef Automate installation and a node to manage.
 so we need 2 systems and then AWS OpsWorks for chef automation 
-
-
+# install the Chef DK(development kit) on your workstation so that you can manage a node remotely.
+Download Chef DK system from https://downloads.chef.io/chefdk
 
 
 
