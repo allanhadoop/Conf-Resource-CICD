@@ -1,5 +1,30 @@
 # Source - https://prakhar.me/docker-curriculum/
+# Install Source - https://docs.docker.com/engine/installation/linux/ubuntulinux/
 # an open-source project that automates the deployment of software applications inside containers by providing an additional layer of
 # abstraction and automation of OS-level virtualization on Linux.
 # VMs run applications inside a guest Operating System, which runs on virtual hardware powered by the server’s host OS.
+
+sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates
+# Add the new GPG key. This commands downloads the key with the ID 58118E89F3A912897C070ADBF76221572C52609D from the keyserver 
+# hkp://ha.pool.sks-keyservers.net:80 and adds it to the adv keychain. If the above keyserver is not available, 
+# try hkp://pgp.mit.edu:80 or hkp://keyserver.ubuntu.com:80.
+
+sudo apt-key adv \
+               --keyserver hkp://ha.pool.sks-keyservers.net:80 \
+               --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+               
+Rest of the commands at https://docs.docker.com/engine/installation/linux/ubuntulinux/
+-----------------------------------------------------------------------------------------
+# Docker 
+
+
+
+
+
+
+
+
+
+
 
