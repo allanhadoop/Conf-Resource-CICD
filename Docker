@@ -28,9 +28,75 @@ sudo docker run hello-world
 >> Cannot connect to the Docker daemon. Is 'docker daemon' running on this host?
 env | grep DOCKER_HOST  --if nany entry find then unset it using unset DOCKER_HOST
 
+sudo docker -d &     #start daemon
+
 other linux distribution -- details at https://docs.docker.com/engine/getstarted/step_one/
 -----------------------------------------------------------------------------------------
-# Docker 
+some terminology-
+Images - The blueprints of our application which form the basis of containers. In the demo above, we used the docker pull command to download the busybox image.
+Containers - Created from Docker images and run the actual application. We create a container using docker run which we did using the busybox image that we downloaded. A list of running containers can be seen using the docker ps command.
+Docker Daemon - The background service running on the host that manages building, running and distributing Docker containers. The daemon is the process that runs in the operation system to which clients talk to.
+Docker Client - The command line tool that allows the user to interact with the daemon. More generally, there can be other forms of clients too - such as Kitematic which provide a GUI to the users.
+Docker Hub - A registry of Docker images. You can think of the registry as a directory of all available Docker images. If required, one can host their own Docker registries and can use them for pulling images.
+-----------------------------------------------------------------------------------------
+# Docker  source - https://prakhar.me/docker-curriculum/
+docker -version 
+python --version
+pip --version
+java -version (optional) 
+docker pull busybox     #some sample image.The pull command fetches the busybox image from the Docker registry and saves it to our system. You can use the docker images command to see a list of all images on your system
+docker images           #list of images on system from docker registry
+docker run busybox      #Docker client finds the image (busybox in this case), loads up the container and then runs a command in that container. When we run docker run busybox, we didn't provide a command, so the container booted up, ran an empty command and then exited
+docker run busybox echo "hello from busybox"      #If you've noticed, all of that happened pretty quickly. Imagine booting up a virtual machine, running a command and then killing it
+docker ps -a            # This will list all contaniners.
+docker run -it busybox sh    # here Running the run command with the -it flags attaches us to an interactive tty in the container. Now we can run as many commands in the container as we want
+                             e.g. we can run as below 
+                              / # ls 
+                              / # cd /etc/
+  
+docker rm $(docker ps -a -q -f status=exited)    # to remove multiple containers 
+
+-----------------------------------------------------------------------------------
+# deploying web applications with Docker!
+
+docker run prakhar1989/static-site  # since image doesnot exits locally, it will pull frm registry
+# -p switch - the client is not exposing any ports so we need to re-run the docker run command to publish port
+# -d switch - we should also find a way so that our terminal is not attached to the running container. This way, you can happily close your terminal and keep the container running. This is called detached mode.
+
+docker run -d -P --name static-site prakhar1989/static-sitee61d12292d69556eabe2a44c16cbd54486b2527e2ce4f95438e504afb7b02810
+
+docker port static-site
+docker run -p 8888:80 prakhar1989/static-site    #port 8888 - so this is a custom port to which the client will forward connections to the container.
+-----------------------------------------------------------------------------------
+# Create our own docker image -
+# Docker images are the basis of containers. For simplicity, you can think of an image akin to a git repository - images can be committed with changes and have multiple versions. If you don't provide a specific version number, the client defaults to latest
+
+SO there are three types of images as follows - 
+Base images are images that have no parent image, usually images with an OS like ubuntu, busybox or debian.
+Child images are images that build on base images and add additional functionality.
+User images, which can be both base and child images. These images that are officially maintained and supported by the folks at Docker
+
+------------------------------------------------------------------------------------
+# what is onbuild version ? - These images include multiple ONBUILD triggers, which should be all you need to bootstrap most applications. The build will COPY a requirements.txt file, RUN pip install on said file, and then copy the current directory into /usr/src/app.In other words, the onbuild version of the image includes helpers that automate the boring parts of getting an app running. Rather than doing these tasks manually (or scripting these tasks), these images do that work for you
+
+# A Dockerfile is a simple text-file that contains a list of commands that the Docker client calls while creating an image.It's a simple way to automate the image creation process.
+                # our base image
+                FROM python:3-onbuild
+                # specify the port number the container should expose
+                EXPOSE 5000
+                # run the application
+                CMD ["python", "./app.py"]
+
+# The docker build command does the heavy-lifting of creating a Docker image from a Dockerfile.
+docker build -t prakhar1989/catnip .
+docker run -p 8888:5000 prakhar1989/catnip
+------------------------------------------------------------------------------------
+
+
+
+
+
+
 
 
 
