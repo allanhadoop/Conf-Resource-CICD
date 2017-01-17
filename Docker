@@ -1,4 +1,5 @@
 # Source - https://prakhar.me/docker-curriculum/
+# source - https://prakhar.me/docker-curriculum/
 # Install Source - https://docs.docker.com/engine/installation/linux/ubuntulinux/
 # an open-source project that automates the deployment of software applications inside containers by providing an additional layer of
 # abstraction and automation of OS-level virtualization on Linux.
@@ -90,21 +91,69 @@ User images, which can be both base and child images. These images that are offi
 # The docker build command does the heavy-lifting of creating a Docker image from a Dockerfile.
 docker build -t prakhar1989/catnip .
 docker run -p 8888:5000 prakhar1989/catnip
+This docker image can be pushed to AWS EBS . EBS is PaaS platform by AWS. 
 ------------------------------------------------------------------------------------
+# Multi-container Environments - it involves some kind of persistant storage like Redis and Memcached .it provides isolation. To keep containers for each of the services separate
+it is wise to keep containers for each of the services separate sort of a microservices architectures.
+# Source - https://prakhar.me/docker-curriculum/ - In this example of food service, it consists of a Flask backend server and elasticsearch service . So 2 things
+so a natural way to split this app would be to have two containers - one running the Flask process and another running the Elasticsearch (ES) process.
 
+So Flask backend server container needs following - 
+1. Dockerfile 
+      - ubuntu base image 
+      - python 
+      - nodejs to run javascript app page, npm package depenencies etc
+              # start from base
+              FROM ubuntu:14.04
+              MAINTAINER Prakhar Srivastav <prakhar@prakhar.me>
 
+              # install system-wide deps for python and node
+              RUN apt-get -yqq update
+              RUN apt-get -yqq install python-pip python-dev
+              RUN apt-get -yqq install nodejs npm
+              RUN ln -s /usr/bin/nodejs /usr/bin/node
 
+              # copy our application code
+              ADD flask-app /opt/flask-app
+              WORKDIR /opt/flask-app
 
+              # fetch app specific deps
+              RUN npm install
+              RUN npm run build
+              RUN pip install -r requirements.txt
 
+              # expose port
+              EXPOSE 5000
 
+              # start app
+              CMD [ "python", "./app.py" ]
+   
+      docker build -t prakhar1989/foodtrucks-web .
+And Elastic search ES container needs nothing  - docker run -dp 9200:9200 elasticsearch 
+-- Now we can connect these two container using Bridge network but it is alwaysa safe to create our own network using (network create) command
+docker network create foodtrucks
+docker network ls
 
+# Now launch our containers inside this network using the --net flag
+docker run -dp 9200:9200 --net foodtrucks --name es elasticsearch
 
+#Now clone actual repo and run whole app using /.setup command as shown below
+$ git clone https://github.com/prakhar1989/FoodTrucks
+$ cd FoodTrucks
+$ ./setup-docker.sh
 
-
-
-
-
-
+#This setup-docker.sh has following 4 commands - 
+#!/bin/bash
+# build the flask container
+docker build -t prakhar1989/foodtrucks-web .
+# create the network
+docker network create foodtrucks
+# start the ES container
+docker run -d --net foodtrucks -p 9200:9200 -p 9300:9300 --name es elasticsearch
+# start the flask app container
+docker run -d --net foodtrucks -p 5000:5000 --name foodtrucks-web prakhar1989/foodtrucks-web
+------------------------------------------------------------------------------------------------------------------
+## Docker-compose 
 
 
 
