@@ -33,6 +33,15 @@ sudo docker -d &     #start daemon
 
 other linux distribution -- details at https://docs.docker.com/engine/getstarted/step_one/
 -----------------------------------------------------------------------------------------
+# Docker versions - Use different tags to create versions as shown below . 
+# “Latest” simply means “the last build/tag that ran without a specific tag/version specified” so use different tags as shown below to pull latest image from docker hub if you push any updated version there.
+          sudo docker build -t allan/test .
+          sudo docker tag allan/test allan/test:2 
+          ...
+          sudo docker build -t allan/test .
+          sudo docker tag allan/test:3
+          ...
+
 some terminology-
 Images - The blueprints of our application which form the basis of containers. In the demo above, we used the docker pull command to download the busybox image.
 Containers - Created from Docker images and run the actual application. We create a container using docker run which we did using the busybox image that we downloaded. A list of running containers can be seen using the docker ps command.
