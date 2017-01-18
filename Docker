@@ -163,6 +163,92 @@ docker run -d --net foodtrucks -p 9200:9200 -p 9300:9300 --name es elasticsearch
 docker run -d --net foodtrucks -p 5000:5000 --name foodtrucks-web prakhar1989/foodtrucks-web
 ------------------------------------------------------------------------------------------------------------------
 ## Docker-compose 
+1. Docker Machine - Create Docker hosts on your computer, on cloud providers, and inside your own data center
+2. Docker Compose - A tool for defining and running multi-container Docker applications.
+3. Docker Swarm - A native clustering solution for Docker
+
+So docker compose is a tool that is used for defining and running multi-container Docker apps in an easy way. It provides a 
+configuration file called docker-compose.yml that can be used to bring up an application and the suite of services it depends on 
+with just one command.
+
+#Install docker compose 
+pip install docker-compose
+docker-compose version
+
+#sample docker-compose.yml file is below
+        version: "2"
+        services:     
+          es:
+            image: elasticsearch
+          web:
+            image: prakhar1989/foodtrucks-web
+            command: python app.py
+            ports:
+              - "5000:5000"
+            volumes:
+              - .:/code
+# At the parent level, we define the names of our services - es and web. For each service, that Docker needs to run, we can add 
+# additional parameters out of which image is required. For es, we just refer to the elasticsearch image available on the Docker Hub. 
+# For our Flask app, we refer to the image that we built at the beginning of this section. Via other parameters such as command and 
+# ports we provide more information about the container. The volumes parameter specifies a mount point in our web container where 
+# the code will reside.
+
+docker-compose up
+
+# so basically docker-compose.yml creates network for both the containers (es and web) so earlier , we were creating it manually using create network command.
+# Also docker-compose doesnot add host to the /etc/host file, instead it does service discovery using a DNS server. 
+-------------------------------------------------------------------
+
+# Deploying docker on AWS cloud (ECS)- 
+# AWS ECS is a scalable and super flexible container management service that supports Docker containers. It allows you to operate a 
+# Docker cluster on top of EC2 instances via an easy-to-use API. Where Beanstalk came with reasonable defaults, ECS allows you to 
+# completely tune your environment as per your needs.
+
+#Deploy docker-compose.yml using ECS CLI commands
+ecs-cli --version
+ecs-cli configure --region us-east-1 --cluster foodtrucks
+
+# The next step enables the CLI to create a CloudFormation template.
+ecs-cli up --keypair ecs --capability-iam --size 2 --instance-type t2.micro
+# above, ecs is keypair , size is number of instance we want in the our foodtruck cluster.
+# for AWS ECS deloyment , we need to use slightly different docker-compose.yml file to remove few things as below
+            es:
+              image: elasticsearch
+              cpu_shares: 100                   # newly added 
+              mem_limit: 262144000              # newly added 
+            web:
+              image: prakhar1989/foodtrucks-web
+              cpu_shares: 100                   # newly added 
+              mem_limit: 262144000              # newly added 
+              ports:
+                - "80:5000"
+              links:                             # newly added 
+                - es                             # newly added
+                
+# mem_limit and cpu_shares values for each container
+# we removed verson and service from main docker-compose file. ecs-cli does not support the build command
+ecs-cli compose --file docker-compose.yml up
+ecs-cli ps
+# now AWS will wrap this docker-compose under 1 task and called it ECS task. That task will have 2 containers es and web. 
+
+--GIT REPO COde - https://github.com/prakhar1989/docker-curriculum
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
