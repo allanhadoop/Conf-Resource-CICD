@@ -1,0 +1,11 @@
+# Source course at https://classroom.udacity.com/courses/ud615/lessons/7826112332/concepts/81957124690923
+# It provides microservice (microservice is a design pattern) , meaning it can be applied to any  application , it break into pieces and makes continous deployment possible
+# it pushes the limits of automation tool.
+
+# Now we need Google Compute Engine (GCE) account. GCE will allow you to the create VMs, Networks, and Storage volumes required for 
+# this workshop. GCE also provides the Cloud Shell computing environment.
+
+# GCE account at https://console.cloud.google.com/freetrial?pli=1
+
+
+
