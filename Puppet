@@ -43,7 +43,7 @@ service { 'httpd':
 package { 'openssh':
   ensure => present,
 }
------------Run stage in the manifest-- Manage depenencies in the resources -- Manage dependencies (before, require, subscribe, notify, stage)
+-----------Run stage in the manifest-- Manage depenencies in the resources -- Manage dependencies BRSNS - (before, require, subscribe, notify, stage)
 stage { 'pre':
   before => Stage['main'],
 }
