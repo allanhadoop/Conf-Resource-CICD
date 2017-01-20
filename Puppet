@@ -20,9 +20,12 @@ apt-get install puppetmaster # On server (master)
 - Variables and parameters
 - Nodes classification
 
-Similar to recipe(chef) , we have manifest(with .pp extension) in puppet
+Similar to recipe(chef .rb extension) , we have manifest(with .pp extension) in puppet
 Similar to resources(files, services, apt-update etc) in Chef, we call it resources in Puppet too however we have classes that group all resources and can expose parameters that may impact their behaviors
 Similar to cookbooks(combination of all recipes) in chef , here we have modules in puppet 
+Since chef uses workstation or Chef developmen kit , it uses knife CLI to send recipe or cookbbok to chef server which then gets applied
+at chef client, in case of puppet there is no CLI tool since facter is enough to apply manifest site.pp directly to puppet node .
+
 
 Example of resource - 
 type { 'title':        # type (package, service, file, user, mount)
