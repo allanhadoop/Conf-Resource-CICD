@@ -1,6 +1,7 @@
 # Source - http://www.devopscloud.com/05.01.html
 Following are the rules of the CloudFormation external Domain Specific Language (DSL) in JSON notation
 There are 4 sections - Parameters, Mapping, Resources and Output section . Each section is tied to each other. 
+# It is also possible to code Bash script in user data under Resource section.
 
 --Parameter section (let's say we deifned instance type parameter here) 
         "InstanceType" : {
