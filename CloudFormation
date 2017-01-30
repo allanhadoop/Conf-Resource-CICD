@@ -1,0 +1,36 @@
+# Source - http://www.devopscloud.com/05.01.html
+Following are the rules of the CloudFormation external Domain Specific Language (DSL) in JSON notation
+There are 4 sections - Parameters, Mapping, Resources and Output section . Each section is tied to each other. 
+
+--Parameter section (let's say we deifned instance type parameter here) 
+        "InstanceType" : {
+          "Description" : "WebServer EC2 instance type",
+          "Type" : "String",
+          "Default" : "c1.medium",
+          "ConstraintDescription" : "Must be a valid EC2 instance type."}
+--Mapping section (Mappings are key/value pairs)
+        "AWSInstanceType2Arch" : {
+          "t1.micro": { "Arch" : "64" },
+          "m1.large": { "Arch" : "64" },
+          "m1.xlarge"   : { "Arch" : "64" },
+          "m2.xlarge"   : { "Arch" : "64" },
+          "m2.2xlarge"  : { "Arch" : "64" },
+          "m2.4xlarge"  : { "Arch" : "64" },}
+--Resource section (define how the various AWS resources are configured as part of your infrastructure)
+## below FindInMap means , it will find single value from list of value given in mapping section for the resource
+        "AWS::CloudFormation::Authentication" : {
+             "S3AccessCreds" : {
+            "type" : "S3",
+            "accessKeyId" : { "Ref" : "HostKeys" },
+            "secretKey" : {"Fn::GetAtt": ["HostKeys", "SecretAccessKey"]},
+            "buckets" : [ { "Ref" : "PrivateBucket" }, { "Ref" : "PublicBucket"} ]
+              }}},
+          "Properties": {
+            "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                              { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+            "InstanceType"   : { "Ref" : "InstanceType" },
+            "SecurityGroups" : [ {"Ref" : "FrontendGroup"} ],
+            "KeyName"        : { "Ref" : "KeyName" },
+--Output section (Optional section - you return values to the user of the CloudFormation stack)
+  "InstanceIPAddress" : {
+    "Value" : { "Ref" : "IPAddress" }},
