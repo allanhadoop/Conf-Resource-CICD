@@ -1,4 +1,129 @@
-# Launch EC2 instance (count 2 or more) on AWS console 
+# source - https://www.youtube.com/watch?v=HpKvAiSLh3I
+# Launch EC2 instance (count 2 or more) on AWS console . Make sure to have following custom ports on security grp
+custom TCP - 50030 , 50070 , 54310 , 54311 - all allowed fro anywhere 0.0.0.0
+
+# log into first instance 
+sudo hostname master 
+# log into second instance and change host sudo nano /etc/host
+sudo hostname slave
+
+# First instance & second instance , add below entries of host- sudo nano /etc/host
+<private ip from EC2 instance page> master
+<private ip from EC2 instance page> slave
+
+# Generate SSH keys on both instances
+ssh-keygen -t dsa -P ' ' -f ~/.ssh/id_dsa
+sudo cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
+
+# Copy ssh keys of each other to both.
+now do ssh master to see if it connects on both instances
+ssh slave to check if it connects on both instances
+
+## Now lets install java on both instances, set up properties first
+sudo apt-get -q -y install python-software-properties
+sudo add-apt-repository -y ppa:webupd8team/java
+sudo apt-get -q -y update
+
+#accpet the license
+echo debconf shared/accepted-oracle-license-v1-l select true | sudo debconf-set-selections
+echo debconf shared/accepted-oracle-license-v1-l seen true | sudo debconf-set-selections
+
+# install java now - 
+sudo apt-get -q -y install oracle-java7-installer
+
+# update environment variables on both instances
+sudo bash -c "echo JAVA_HOME=/usr/lib/jvm/java-7-oracle/ >> /etc/environment"
+
+# Download hadoop on both instances
+wget http://apache.mesi.com.ar/hadoop/common/hadoop-1.2.1/hadoop-1.2.1.tar.gz
+tar xzf hadoop-1.2.1.tar.gz
+
+# Now on both instances 
+cd hadoop-1.2.1/
+cd conf
+ls
+
+# Edit core-site.html file on both instances and add below code under <configuration> block
+<configuration>
+  <property>
+    <name>fs.defult.name</name>
+    <value>hdfs://master:54310</value>      #here 54310 is the custom ip port allowed on security group of EC2 instance of cluster on console   
+  </property>
+</configuration>
+
+# Edit hdfs-site.html file on both instances and add below code under <configuration> block
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>2</value>      
+  </property>
+</configuration>
+
+# Edit mapred-site.html file on both instances and add below code under <configuration> block
+<configuration>
+  <property>
+    <name>mapred.job.tracker</name>
+    <value>master:54311</value>       #54311 is customer ip specified on EC2 instances launcg of cluster. 
+  </property>
+</configuration>
+
+# set Java home in hadoop-env.sh on both instances
+sudo nano conf/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-7-oracle    # uncomment JAVA_HOME line
+
+# set master and slave in masters and slaves files on both instances as follows
+vim masters 
+master  # delete localhost entry
+vim slaves
+master  # delete localhost entry
+slave
+
+# Start hadoop cluster now. Execute this on only master instance.
+cd hadoop                       # go to haddop dir
+bin/hadoop namenode -format     #This will start hadoop cluster
+bin/start-dfs.sh
+bin/start-mapred.sh
+jps
+
+#Go to EC2 instance page and capture public ip address and open browser
+<public ip>:50030    #This will open hadoop admin jobtracker front page
+<public ip>:50070    #This will open hadoop admin dfshealth front page
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
