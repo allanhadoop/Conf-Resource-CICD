@@ -10,4 +10,25 @@ all production traffic. ... Green is now live, and Blue is idle
 --------------------------------------------------------------
 # Building RPM package source -  http://www.tldp.org/HOWTO/RPM-HOWTO/build.html
 
+--------------------------------------------------------------
+# Jenkins 
+# Example perform following steps
+-Perform a software build with Apache Maven or Gradle
+-Run a shell script
+-Archive the build result
+-Afterwards start the integration tests
+
+# Jenkins runs on http://localhost:8080/
+
+
+
+
+
+
+
+
+
+
+
+
 
