@@ -32,8 +32,9 @@ http://localhost:8080/jenkins
 # Under manage jenkins --> configure system --> we can set environment variable (example terraform variables) or git server , 
 ssh server , docker registry,shell script, email etc
 
-
-
+# To access private Git repo, generate ssh key  
+sudo -u jenkins ssh-keygen
+# Jenkins supports the Git version control system via a plugin.
 
 
 
