@@ -19,6 +19,20 @@ all production traffic. ... Green is now live, and Blue is idle
 -Afterwards start the integration tests
 
 # Jenkins runs on http://localhost:8080/
+wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo apt-get install jenkins
+sudo apt-get update
+sudo apt-get install jenkins
+
+netstat -a -n -o | grep "8080"
+http://localhost:8080/jenkins
+
+# Under manage jenkins --> configure system --> we can set environment variable (example terraform variables) or git server , 
+ssh server , docker registry,shell script, email etc
+
+
 
 
 
