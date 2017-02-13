@@ -11,20 +11,23 @@ all production traffic. ... Green is now live, and Blue is idle
 # Building RPM package source -  http://www.tldp.org/HOWTO/RPM-HOWTO/build.html
 
 --------------------------------------------------------------
-# Jenkins 
+# Jenkins Installaton , Jenkins Github setup, Jenkins maven set up , Jenkins Tomcat set, Coniguration , Management, setup build jobs.
+# job automation , reporting.
 # Example perform following steps
 -Perform a software build with Apache Maven or Gradle
 -Run a shell script
 -Archive the build result
 -Afterwards start the integration tests
 
+---------
+#Jenkins installation
 # Jenkins runs on http://localhost:8080/
 wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
 sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
 sudo apt-get update
 sudo apt-get install jenkins
-sudo apt-get update
-sudo apt-get install jenkins
+
+# Jenkins will be at /var/lib folder 
 
 netstat -a -n -o | grep "8080"
 http://localhost:8080/jenkins
@@ -32,12 +35,17 @@ http://localhost:8080/jenkins
 # Under manage jenkins --> configure system --> we can set environment variable (example terraform variables) or git server , 
 ssh server , docker registry,shell script, email etc
 
+------
 # To access private Git repo, generate ssh key  
 sudo -u jenkins ssh-keygen
 # Jenkins supports the Git version control system via a plugin.
+# Install plugin from manage plugin 'Git plugin' and then restart jenkins by http://localhost:8080/jenkins/restart
 
 
 
+----
+# Tomcat Setup 
+# Copy the Jenkis.war file which was downloaded from the previous section and copy it to the webapps folder in the tomcat folder.
 
 
 
