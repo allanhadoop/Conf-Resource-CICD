@@ -20,7 +20,7 @@ all production traffic. ... Green is now live, and Blue is idle
 -Afterwards start the integration tests
 
 ---------
-#Jenkins installation
+#Jenkins installation  ON EC2 - (SOURCE http://sanketdangi.com/post/62715793234/install-configure-jenkins-on-amazon-linux) 
 # Jenkins runs on http://localhost:8080/
 wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
 sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
@@ -30,7 +30,9 @@ sudo apt-get install jenkins
 # Jenkins will be at /var/lib folder 
 
 netstat -a -n -o | grep "8080"
-http://localhost:8080/jenkins
+http://localhost:8080/jenkins OR
+http://<Elastic-IP>:8080  
+
 
 # Under manage jenkins --> configure system --> we can set environment variable (example terraform variables) or git server , 
 ssh server , docker registry,shell script, email etc
