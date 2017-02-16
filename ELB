@@ -1,0 +1,56 @@
+# Source - http://www.slideshare.net/AmazonWebServices/deep-dive-on-elastic-load-balancing-64922818?from_action=save
+
+                        Application LB
+                        -----------------------
+Protocol                http/https                
+platforms               EC2-VPC
+path base routing         yes
+Container support         yes
+websockets & http/2       yes
+
+# An Application Load Balancer makes routing decisions at the application layer (HTTP/HTTPS), supports path-based routing, and 
+can route requests to one or more ports on each EC2 
+# Content-based routing allows requests to be routed to different applications behind a single load balancer.
+# Each Application load balancer can have up to 10 listeners, should have at least 1 listener
+
+# Logical grouping of targets behind the load balancer. Support for EC2 instances and Amazon ECS container instances
+
+
+                      Application load balancer 
+                Listener                       Listener 
+                   |
+      Rule(/order/)   Rule(*/api/*)   
+         |                    |      
+   EC2.EC2.EC2            EC2.EC2.EC2.
+    TargetGrp1             TargetGrp2
+      Autosg1                Autosg2 
+
+
+# Each listener can have one or more rules for routing requests to target groups. Rules consist of conditions and actions.
+# When a request meets the condition of the rule, the action is taken. Conditions can be specified in path pattern format.
+# Application load balancer allows for multiple services to be hosted behind a single load balancer whereas classical load balancer
+# needs two 2 ELBs. 
+
+# Auto Scaling can now scale targets within a target group. Allows for applications to be scaled independently behind the 
+Application load balancer. Auto Scaling manages the scaling of each target group independently. 
+
+# ----------------- ECS with application load balancer
+Application Load Balancer is fully integrated with ECS, managing target groups, paths, and targets.
+ECS automatically registers tasks with the load balancer using a dynamic port mapping
+
+
+                      Application load balancer 
+                Listener                       Listener 
+                   |
+      Rule(/order/)   Rule(*/api/*)   
+         |                    |      
+   ECS1.ECS2.ECS3            EC2.EC2.EC2.
+    TargetGrp1             TargetGrp2
+      Autosg1                Autosg2 
+
+
+
+
+
+
+
