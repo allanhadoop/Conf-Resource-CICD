@@ -50,6 +50,31 @@ sudo -u jenkins ssh-keygen
 # Copy the Jenkis.war file which was downloaded from the previous section and copy it to the webapps folder in the tomcat folder.
 
 
+-------------------------------Code push from github project to trigger Jenkins job build 
+# source - https://learning-continuous-deployment.github.io/jenkins/github/2015/04/17/github-jenkins/
+# Jenikins build process is automatically started when a contributor pushes to the respective GitHub repository.
+
+Jenkins steps - 
+1. Create new item ( jenkins job) 
+2. Enter URL of git repo 
+3. Under source-code-management' option choose, Git option . There is other options such as CVS , etc 
+4. Enter the repository clone-URL in the appearing text field
+5. Now check the “Build when a change is pushed to GitHub” option in the “Build Triggers” section
+6. Finally, get Jenkins web hook URL from Jenkins system settings (Manage Jenkins -> Configure System - Manually manage hook URLs”) 
+This URL is required to create a hook in github repo later.
+
+Github steps - 
+1. Configure the GitHub repository
+2. Adding service -- GitHub project settings and click on “Webhooks & Services”. Press the “Add service” button and choose “Jenkins (GitHub plugin)” from 
+the service list.
+
+
+
+
+
+
+
+
 
 
 
