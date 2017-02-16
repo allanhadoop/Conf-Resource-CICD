@@ -227,7 +227,14 @@ puppet agent -t    # on puppet client node machine.
 - With source => , the content of the file is retrieved with a new connection to the PuppetMaster
 - With content => template() , the content is placed inside the catalog.
 - Avoid too many elements in a source array for file retrieval:
-
+------------------------------------------------------------------------------------------------
+Catelog - 
+When configuring a node, Puppet Agent uses a document called a catalog, which it downloads from a Puppet Master. The catalog describes the 
+desired state for each resource that should be managed, and may specify dependency information for resources that should be managed in a 
+certain order.Puppet compiles a catalog using three main sources of configuration info:
+1. Agent-provided data
+2. External data
+3. Puppet manifests
 -------------------------------------------------------Q&A ----------------------------------------
 # sOurce - http://tekslate.com/puppet-interview-questions-and-answers
 
