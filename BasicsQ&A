@@ -1,0 +1,33 @@
+# Source http://linoxide.com/linux-how-to/devops-interview-questions-answers/
+# On Agile implementations, emphasis is placed on people over processes. DevOps environment, development and operations are streamlined 
+and barriers between the two groups should not exist.
+# Agile development used as an alternative to Waterfall development practice. In Agile, the development process is more iterative and 
+incremental, there is more testing and feedback at every stage of development as opposed to only the last stage in Waterfall.
+
+Scrum is used to manage complex software and product development, using iterative and incremental practices. Scrum has three roles ie 
+product owner, scrum master, and team.
+
+
+What is Kubernetes? 
+It is massively scalable tool for managing containers, made by Google. It is used internally on huge deployments and because of that it 
+is maybe the best option for production use of containers. It supports self healing by restating non responsive containers, it pack 
+containers in a way that they take less resources and has many other great features.
+
+
+CI(continous integration) tools are  Jenkins, TeamCity, CircleCI , Hudson, Buildbot . CI server function is to continuously integrate all 
+changes being made and committed to repository by different developers and check for compile errors.
+
+CD (Continous delivery)  is a practice of delivering the software for testing as soon as it is build by CI (Continuous Integration) 
+server's. It requires heavy use of Versioning Control System
+
+
+
+
+
+
+
+
+
+
+
+
