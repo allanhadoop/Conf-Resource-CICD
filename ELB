@@ -16,7 +16,8 @@ can route requests to one or more ports on each EC2
 # Logical grouping of targets behind the load balancer. Support for EC2 instances and Amazon ECS container instances
 
 
-                      Application load balancer 
+                      Application  load  balancer 
+                      |                        |                       
                 Listener                       Listener 
                    |
       Rule(/order/)   Rule(*/api/*)   
@@ -39,7 +40,8 @@ Application Load Balancer is fully integrated with ECS, managing target groups, 
 ECS automatically registers tasks with the load balancer using a dynamic port mapping
 
 
-                      Application load balancer 
+                      Application  load  balancer 
+                      |                        |       
                 Listener                       Listener 
                    |
       Rule(/order/)   Rule(*/api/*)   
@@ -49,6 +51,13 @@ ECS automatically registers tasks with the load balancer using a dynamic port ma
       Autosg1                Autosg2 
 
 
+# Cloudwatch matrics to monitor health - The following metrics are now provided at the target group level, allowing for individual 
+applications to be closely monitored:
+• RequestCount
+• HTTPCode_Target_2XX_Count
+• HTTPCode_Target_3XX_Count
+
+# Logs indexed by date, but include the IP address of the load balancer node itself can be fed to S3 bucket for analysis.
 
 
 
