@@ -263,7 +263,7 @@ Need the Shadow Password Library, which is provided by the ruby-shadow package. 
 (and higher),
 - How do all of these variables, like $operatingsystem, get set?
 The variables are all set by Facter. You can get a full listing of the available variables and their values by running facter by itself 
-in a shell.
+in a shell. $facter
 
 - Can I access environment variables with Facter?
 Not directly. However, Facter reads in custom facts from a special subset of environment variables. Any environment variable with a prefix 
