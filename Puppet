@@ -1,6 +1,13 @@
 # Source http://www.example42.com/tutorials/PuppetTutorial/#slide-0
 Puppet uses Ruby.It's configuration. mgt tool ( Infrastructure as code)  . Reproducible set up , scalable, aligned environment for dev,test, prod
+Puppet is all about to model everything — 
+1. the current state of the node, 
+2. the desired configuration state, 
+3. the actions taken during configuration enforcement — as data: 
+each node receives a catalog of resources and relationships, compares it to the current system state, and makes changes as needed to 
+bring the system into compliance.
 
+----------------------------------------
 # Software related to puppets - 
 - Facter - Complementary tool to retrieve system's data
 - MCollective - An orchestration framework that allows massively parallel actions on the infrastructure's server
@@ -221,25 +228,55 @@ puppet agent -t    # on puppet client node machine.
 - With content => template() , the content is placed inside the catalog.
 - Avoid too many elements in a source array for file retrieval:
 
+-------------------------------------------------------Q&A ----------------------------------------
+# sOurce - http://tekslate.com/puppet-interview-questions-and-answers
 
+- Puppet Agent(Client) sends request to Puppet Master (Server) and Puppet Master Push Configuration on Agent
+- Manifests, in Puppet, are the files in which the client configuration is specified.
+- Whatever the manifests we defined in modules, can call or include into other manifests. Which makes easier management of Manifests.
+It helps you to push specific manifests on specific Node or Agent.
+- Commands to check requests of Certificates = puppet ca list
+- Commands to sign Requested Certificates = puppet ca  sign hostname-of-agent 
+- Puppet Master Stores Certificates at /var/lib/puppet/ssl/ca/signed
+- Facter - Sometime you need to write manifests on conditional expression based on agent specific data which is available through Facter. 
+Facter provides information like Kernel version,Dist release, IP Address, CPU info and etc.You can defined your facter also.
 
+- etckeeper-commit-pre: In this configuration file you can define command and scripts which executes before pushing configuration on Agent
+- etckeeper-commit-post: In this configuration file you can define command and scripts which executes after pushing configuration on Agent
+- Puppet kick - By default Puppet Agent request to Puppet Master after a periodic time which known as “runinterval”. Puppet Kick is a 
+utility which allows you to trigger Puppet Agent from Puppet Master.
+- MCollective is a powerful orchestration framework. Run actions on thousands of servers simultaneously, using existing plugins or writing 
+your own.
 
+- How to document manifest - 
+The puppet language includes a simple documentation syntax, which is currently documented on the Puppet Manifest Documentation wiki page. 
+The puppetdoc command uses this inline documentation to automatically generate RDoc or HTML documents for your manifests and modules.
+- How to manage passwords on Red Hat Enterprise Linux, CentOS, and Fedora Core?
+Need the Shadow Password Library, which is provided by the ruby-shadow package. The ruby-shadow library is available natively for fc6 
+(and higher),
+- How do all of these variables, like $operatingsystem, get set?
+The variables are all set by Facter. You can get a full listing of the available variables and their values by running facter by itself 
+in a shell.
 
+- Can I access environment variables with Facter?
+Not directly. However, Facter reads in custom facts from a special subset of environment variables. Any environment variable with a prefix 
+of FACTER_ will be converted into a fact when Facter runs
 
+$ FACTOR_FOO="bar"
+$ export FACTOR_FOO
+$ facter | grep 'foo'
+  foo => bar
+The value of the FACTER_FOO environment variable would now be available in your Puppet manifests as $foo, and would have a value of ‘bar’. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+- Why shouldn’t I use autosign for all my clients?
+It is very tempting to enable autosign for all nodes, as it cuts down on the manual steps required to bootstrap a new node .
+Typically this would be done with a *.example.com or even * in the autosign.conf file.
+The problem lies in the fact that the puppet master does not make a 1-1 mapping between a node and the first certificate it saw for it, 
+and hence multiple certificates can map to the same node, for example:
+– alice.example.com connects, gets node alice { } definition.
+– bob.example.com connects with CN alice.bob.example.com, and also matches node alice { } definition.
+Without autosigning, it would be apparent that bob was trying to get alice’s configuration – as the puppet cert process lists the full 
+fqdn/CN presented. With autosign turned on, bob silently retrieves alice’s configuration.
 
 
 
