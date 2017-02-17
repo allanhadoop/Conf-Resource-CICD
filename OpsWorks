@@ -1,0 +1,58 @@
+# Source - http://blog.celingest.com/en/2014/03/04/introduction-opsworks-tips-tricks/
+# OpsWorks enables us to deploy full application stacks in the Cloud while retaining control over the details of the deployment.
+
+# The OpsWorks premise is quite simple: take empty EC2 instances, write down some instructions for them to follow in order to have your 
+application up and running. Do you need an HTTP server? Teach your instance to install and configure it. Maybe what you need is a MySQL 
+one? Teach it to become a database server.Those instructions are Chef recipes .
+
+Structural foundations of OpsWorks: 
+1. Stacks, -- represents complete application, OS, region ,ssh keys, instances, custom cookbooks,custom JSON parameters
+2. Layers -- blueprint for the instances.. eg. instance needs ELB, some app. server , cookbook recipes, database etc 
+3. Instances -- Each instance is assigned to a layer which defines it’s role. When an instance is started, the recipes defined at the layer level are run on it, thus setting it up. 
+4. Apps. - App can be in Rails, PHP, Java, Node.js, a static website or a custom app. App is pointed to code repository e.g. git to pull code and run it.
+5. Elastic IP - to be assigned to OpsWorks instances.
+6. Stack Configuration JSON - This object describes the stack configuration, including it’s layers, instances and all the attributes that 
+describe the stack.
+7. Chef recipe - When we create a new layer, OpsWorks automatically adds some recipes in the lifecycle depending on the layer type we 
+choose. Typically, these recipes are enough to just get our application running and they check our custom JSON for specific keys such as 
+database pointers.
+
+
+we can have more than one application running on the same instance .
+-----------------------------
+Layers can be categorized into following - 
+1.Load Balancer - HAProxy is the only load balancer available at the moment
+2.App server: preconfigured application servers are available - 
+        a. Static Web Server based on Nginx.
+        b. PHP App Server using Apache2.2 and PHP 5.3 with mod_php
+        c. Java App Server using Apache2 with Apache Tomcat 7 on top of Open JDK 7
+        d. Rails App Server using either Apache 2 and Passenger or Nginx and Unicorn. 
+        e. Node.js App Server, using either 0.10.11 or 0.8.19 versions. 
+3. Database - currenly supporting MySQL
+4. Other layers - Memcached, Ganglia and custom layers 
+-----------------------------
+Instances - There are 3 instances 
+1. 24/7
+2. Time-based instances
+3. Load-based instances are started when certain thresholds are met
+
+----------------------------------
+Lifecyfles of OpsWorks 
+1. Setup 
+2. Configure
+3. Deploy
+4. Undeploy
+5. Shutdown
+
+---------------------------------------
+OpsWorks built in chef recipe are at - https://github.com/aws/opsworks-cookbooks
+
+
+
+
+
+
+
+
+
+
