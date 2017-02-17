@@ -1,0 +1,17 @@
+Source - https://blog.philipphauer.de/building-dropwizard-microservice-docker-maven/
+Source - https://blog.philipphauer.de/tutorial-continuous-delivery-with-docker-jenkins/
+
+# Dropwizard produces a fat jar containing every dependency your microservice needs to run. This includes a web server. This way, 
+no web server needs to be installed and configured on the target machine. However, there is some infrastructure left (like the JRE) 
+which still has to be installed before the deployment. That’s where Docker enters the stage. With Docker we can produce an artifact 
+containing really everything we need to run our microservice.
+
+(Dropwizard) Microservices and Docker fit pretty well together. the build is getting straightforward: _One _Dropwizard project produces 
+one artifact (the runnable fat jar), which can be wrapped into _one_ Docker image that runs independently on a target machine. 
+Moreover, no infrastructure (JRE, web or application server) has to be installed before the deployment. The image contains everything 
+necessary. This independence and the small deployment unit speeds up and simplifies our build and deployment.
+
+1. Install Dropwizard project
+2. Now produce a nice runnable fat jar. So calling mvn package creates target/app-0.0.1-SNAPSHOT.jar
+3. Steps as follows - 
+   Create microservice jar --->Create docker image with Microservice jar---->Start and execute test in container---> Push this image to S3
