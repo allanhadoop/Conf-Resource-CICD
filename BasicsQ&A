@@ -28,6 +28,65 @@ environment for deploying IaaS which gives possibility of making your own cloud 
 * SaaS - Salesforce.com
 * Git is distributed while CVS(Computer Vision Syndrome) is centralised
 
+* CoreOS is striped down linux distribution meant for running containters, mainly with its own rkt format but others are also supported. 
+It was initially based on ChromeOS and supported Docker. The alternatives to this are canonical's ubuntu snappy or red hat enterprise 
+linux atomic host. Of course, Containers can also be ran on regular Linux system
+
+* It is a way to install Red Hat based systems by automated way. During manual install process, Anaconda installer creates file 
+anaconda-ks.cfg which then can be used with system-config-kickstart tool to install same configuration automatically on multiple systems.
+
+*Nagios, Icinga 2, OpenNMS, Splunk and Wireshark. Those tools are used to monitor network traffic, network quality and detect network 
+problems even before they arise
+
+*Juju is orchestration tool primarily for ubuntu for management, provision and configuration on Ubuntu systems. It is was initially 
+written in Python and since have been rewritten in Go.
+
+
+* Ansible needs only Python and SSH . 
+Components of Ansible - 
+1. Playbook - Ansible playbooks are a way to send commands to remote computers in a scripted way. They are written in YAML data serialization 
+format. data serialization format (e.g. JSON, YAML) - way to translate a programmatic data structure (lists, arrays, dictionaries, etc) into a format 
+that can be easily stored to disk.
+
+Sample playbook to install web application on nginx on multiple hosts-
+hosts: webservers
+tasks:
+- name: Installs nginx web server
+apt: pkg=nginx state=installed update_cache=true
+notify:
+- start nginx
+
+handlers:
+- name: start nginx
+service: name=nginx state=started
+
+2. Hostfile - (by default under /etc/ansible/hosts) this is the Ansible Inventory file, and it stores the hosts, and their mappings to 
+the host groups (webservers ,databases etc)
+
+Sample host file -
+[webservers]
+10.0.15.22
+# example of setting a host inventory by IP address.
+# also demonstrates how to set per-host variables.
+
+[repository_servers]
+example-repository
+#example of setting a host by hostname. Requires local lookup in /etc/hosts
+# or DNS.
+[dbservers]
+db01
+
+3. SSH key - For the first run, we'll need to tell ansible the SSH and Sudo passwords, because one of the thing that the common role 
+does is to configure passwordless sudo, and deploy a SSH key. So in this case ansible can execute the playbook’s commands in the remote 
+nodes (hosts ) and deploy the web application nginx.
+
+
+
+
+
+
+
+
 
 
 
