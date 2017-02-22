@@ -1,9 +1,15 @@
 # Source https://aws.amazon.com/blogs/apn/terraform-beyond-the-basics-with-aws/
+# source slides - https://www.slideshare.net/AntonBabenko/manage-aws-infrastructure-using-terraform-56140321
+# code - https://github.com/antonbabenko/terraform-aws-devops
+# modules - https://github.com/terraform-community-modules/   . These are self-contained packages e.g. EC2/VPC etc
 
 Terraform - infrastructure as code , json support, resource relationships
 
-terraform plan
+terraform plan               -- show execution plan
 terraform apply
+terraform destroy            -- destroty infrastructure
+init                         -- initialize terraform config. from module
+
 
 export TF_LOG_PATH=./terraform.log  --> Environment variables to store logs 
 export TF_VAR_ami=ami-049d8641      --> to set environment variables
@@ -19,5 +25,53 @@ logical comparision                          yes                         limited
 supports iterations                          no                          yes
 manage already created resources             no                          yes
 cloud agnostic                               no                          yes
+
+------------------------------------------------------------------------------------
+terraform remote (configures remote state storage with Terraform)
+
+                aws infrastructure
+
+.tf files              terraform.tfstate -----(s3/atlas/http/consul)       
+------------------------------------------------------------------------------------
+terraform plan (generates execution plan for Terraform)
+
+                aws infrastructure
+                         |
+.tf files <------->terraform.tfstate   
+------------------------------------------------------------------------------------
+terraform apply (build infrastructure as per config. file .tf files)
+
+   aws infrastructure
+     |                    
+.tf files  <------->terraform.tfstate   
+
+------------------------------------------------------------------------------------
+terraform refresh (updates the state files of your infrastructure w/ metadata that matches the physical resources they are tracking)
+
+              aws infrastructure
+                          |                    
+.tf files             terraform.tfstate   
+
+------------------------------------------------------------------------------------
+terraform taint (manually mark resources as tainted,forcing as destroy and recreate on next plan/apply)
+
+              aws infrastructure
+                                              
+.tf files             terraform.tfstat
+
+------------------------------------------------------------------------------------
+Terraform CI-CD Process
+Jenkins plugin for terraform -  https://wiki.jenkins-ci.org/display/JENKINS/Terraform+Plugin
+
+
+
+
+
+
+
+
+
+
+
 
 
