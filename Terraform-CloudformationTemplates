@@ -1,0 +1,23 @@
+# Source https://aws.amazon.com/blogs/apn/terraform-beyond-the-basics-with-aws/
+
+Terraform - infrastructure as code , json support, resource relationships
+
+terraform plan
+terraform apply
+
+export TF_LOG_PATH=./terraform.log  --> Environment variables to store logs 
+export TF_VAR_ami=ami-049d8641      --> to set environment variables
+terraform.tfvars file               --> to store non-public data and then use .gitignore to ignore this file from git
+
+
+                                       Cloudformation                Terraform  
+                      ---------------------------------------------------------------------------------------------------------                 
+Configuration format                        json                       hcl/json
+state mgt                                    no                          yes
+execution control                            no                          yes
+logical comparision                          yes                         limited
+supports iterations                          no                          yes
+manage already created resources             no                          yes
+cloud agnostic                               no                          yes
+
+
