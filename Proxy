@@ -1,23 +1,89 @@
+# Source - https://www.nginx.com/resources/admin-guide/reverse-proxy/
 # source - http://www.nikola-breznjak.com/blog/javascript/nodejs/using-nginx-as-a-reverse-proxy-in-front-of-your-node-js-application/
 
----> Using nginx as a reverse proxy in front of your Node.js application
+---> 1. Using nginx as a reverse proxy in front of your Node.js application
+Running nginx web server in front of Node may help to mitigate security flaws and DoS attacks against Node. 
+---
+sudo apt-get update
+sudo apt-get install nginx
+sudo vi /etc/nginx/sites-available/default
+---
+      server {
+          listen 80;
+          server_name meantodo.com;      # assuming this is our server.accessing it via a web browser would send the request to the 
+                                         # application server’s private IP address on port 1337,
+          location / {
+              proxy_pass http://127.0.0.1:1337;      # http://backend;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+          }
+      }
+sudo service nginx restart
+
+---> 2. NGINX REVERSE PROXY( more sophiticated) 
+How to pass a request from NGINX to proxied servers over different protocols, modify client request headers that are sent to the proxied 
+server, and configure buffering of responses coming from the proxied servers.
+Proxying is typically used to distribute the load among several servers, seamlessly show content from different websites, or pass requests 
+for processing to application servers over protocols other than HTTP.
+
+1. Passing a Request to a Proxied Server
+2. Passing Request Headers
+3. Configuring Buffers
+4. Choosing an Outgoing IP Address
+---
+1. Passing a Request to a Proxied Server - When NGINX proxies a request, it sends the request to a specified proxied server, fetches the 
+response, and sends it back to the client. It is possible to proxy requests to an HTTP server (another NGINX server or any other server) 
+or a non-HTTP server (which can run an application developed with a specific framework, such as PHP or Python) using a specified protocol. 
+Supported protocols include FastCGI, uwsgi, SCGI, and memcached.
+- E.g. To pass a request to an HTTP proxied server, the proxy_pass directive is specified inside a location. 
+location /some/path/ {
+    proxy_pass http://www.example.com/link/;
+}    
+# For example, here the request with the /some/path/page.html URI will be proxied to http://www.example.com/link/page.html. 
+or 
+location ~ \.php {
+    proxy_pass http://127.0.0.1:8000;
+}
+
+- E.g. To pass a request to a non-HTTP proxied server, the appropriate **_pass directive should be used
+. fastcgi_pass passes a request to a FastCGI server
+. uwsgi_pass passes a request to a uwsgi server
+. scgi_pass passes a request to an SCGI server
+. memcached_pass passes a request to a memcached server
+
+2. Passing Request Headers --By default, NGINX redefines two header fields in proxied requests, “Host” and “Connection”, and eliminates 
+the header fields whose values are empty strings. “Host” is set to the $proxy_host variable, and “Connection” is set to close.
+
+location /some/path/ {
+    proxy_set_header Host $host;        # $host variable.
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_pass http://localhost:8000;
+}
 
 
+3. Configuring Buffers - By default NGINX buffers responses from proxied servers. A response is stored in the internal buffers and is not 
+sent to the client until the whole response is received. If buffering is disabled, the response is sent to the client synchronously while 
+it is receiving it from the proxied server.
+location /some/path/ {
+    proxy_buffers 16 4k;
+    proxy_buffer_size 2k;
+    proxy_pass http://localhost:8000;
+}
+ 
+4. Choosing an Outgoing IP Address -- If your proxy server has several network interfaces, sometimes you might need to choose a particular 
+source IP address for connecting to a proxied server or an upstream. This may be useful if a proxied server behind NGINX is configured to 
+accept connections from particular IP networks or IP address ranges.
 
+location /app1/ {
+    proxy_bind 127.0.0.1;
+    proxy_pass http://example.com/app1/;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+location /app2/ {
+    proxy_bind 127.0.0.2;
+    proxy_pass http://example.com/app2/;
+}
 
