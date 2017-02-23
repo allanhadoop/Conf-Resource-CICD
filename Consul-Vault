@@ -1,0 +1,33 @@
+# Source - https://www.vaultproject.io/intro/vs/consul.html
+
+Vault is designed  a tool for securely managing secrets and encrypting data in-transit. From storing credentials and API keys to 
+encrypting passwords for user signups
+
+The strength of Consul is that it is fault tolerant and highly scalable. By using Consul as a backend to Vault, you get the best of 
+both. Consul is used for durable storage of encrypted data at rest and provides coordination so that Vault can be highly available 
+and fault tolerant. Vault provides the higher level policy management, secret leasing, audit logging, and automatic revocation.
+
+# Vault - Source - https://www.hashicorp.com/blog/Vault-announcement/
+1. Secure secret storage    -- store key/values
+2. Dynamic secrets          -- generate credentials
+3. Leasing and renewal      -- revoke secret after lease over
+4. Revocation      
+5. Data encryption              
+6. Auditing
+7. Access control policies
+8. Multiple authentication methods  -- supports tokens, username/password, GitHub, certificates
+
+Download from https://www.vaultproject.io/downloads.html
+
+$ vault write secret/foo value=bar
+Success! Data written to: secret/foo
+
+$ vault read secret/foo
+Key               Value
+lease_id          secret/foo/9c5f3cf1-1239-0160-4311-d6544fd1018c
+lease_duration    2592000
+value             bar
+
+$ vault delete secret/foo
+Success! Deleted 'secret/foo'
+
