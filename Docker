@@ -114,7 +114,7 @@ So Flask backend server container needs following -
       - nodejs to run javascript app page, npm package depenencies etc
               # start from base
               FROM ubuntu:14.04
-              MAINTAINER Prakhar Srivastav <prakhar@prakhar.me>
+              MAINTAINER first name last name <test@gmail.com>
 
               # install system-wide deps for python and node
               RUN apt-get -yqq update
