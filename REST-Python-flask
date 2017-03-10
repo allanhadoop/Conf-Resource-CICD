@@ -163,6 +163,65 @@ RequestParser class is used for validation of PUT request.
 
 
 
+------------------------------------Oauth / tokenization instead of user id /passwrord --------------------
+Having to send the username and the password with every request is inconvenient and can be seen as a security risk even if the transport 
+is secure HTTP, since the client application must have those credentials stored without encryption to be able to send them with the 
+requests. An improvement over the previous solution is to use a token to authenticate requests.Tokens are usually given out with an 
+expiration time, after which they become invalid and a new token needs to be obtained. 
+
+A straightforward implementation is to generate a random sequence of characters of certain length that is stored with the user and the 
+password in the database, possibly with an expiration date as well. The token then becomes sort of a plain text password, in that can be 
+easily verified with a string comparison, plus a check of its expiration date.
+
+A more elaborated implementation that requires no server side storage is to use a cryptographically signed message as a token. This has 
+the advantage that the information related to the token, namely the user for which the token was generated, is encoded in the token itself 
+and protected against tampering with a strong cryptographic signature.
+
+-----------------What is OAuth --------------
+For example, consider a website or application that asks you for permission to access your Facebook account and post something to your 
+timeline. In this example you are the resource holder (you own your Facebook timeline), the third party application is the consumer and 
+Facebook is the provider. Even if you grant access and the consumer application writes to your timeline, it never sees your Facebook login 
+information.
+- This usage of OAuth does not apply to a client/server RESTful API. Something like this would only make sense if your RESTful 
+API can be accessed by third party applications (consumers).
+
+-----------------What is 2 legged - OAuth - typically used for restapi--------------
+source - http://www.lexev.org/en/2015/oauth-step-step/
+OAuth 1.0 - (3-legged standard process from the client side.) 
+# The main part to remember about OAuth 1.0 - it signs all requests with secret key. Secret key must be kept in safe place, the only one 
+is server. Protocol provides fully security, even if https is not used. By saying "security" i mean the following: once the request was 
+eavesdropped, the hacker can't create new valid request. Of course he can get the data being transmitted, to hide the data we still need 
+the https.
+see this diagram  - https://malalanayake.wordpress.com/2013/01/09/3-legged-oauth-flow/
+
+1. The consumer requests a request token (usually by passing an application key and application secret)
+2. The user is then redirected to a login page, passing the request token to that page
+3. User logs in and is redirected back to the consumer, passing the request token to the consumer's page
+4. The consumer exchanges the request token for an access token
+5. If the previous request was valid, the server will return an access token to the consumer. The access token is used for API requests
+6. During this process, the authorization is processed using multiple predefined URLs, called endpoints. There are 3 endpoints:
+
+- Request URI (this endpoint passes the request token)
+- Access URI (exchanges request token for an access token)
+- Authorize URI (confirms that the access token is valid) 
+
+
+- Oauth grants third-party applications access to the resources without sharing passwords.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
