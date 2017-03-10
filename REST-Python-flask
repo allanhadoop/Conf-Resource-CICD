@@ -1,5 +1,6 @@
 # Designing a RESTful API with Python and Flask
 Source - https://www.cs.utexas.edu/~cannata/networking/Class%20Notes/07%20Designing%20a%20RESTful%20API%20with%20Python%20and%20Flask%20-%20miguelgrinberg.pdf
+# github code - https://gist.github.com/miguelgrinberg/5614326
 
 1. Client-Server: Server offers a service, and the client consumes it.
 2. Stateless: Each request from a client must contain all the information required by the server to carry out the request. 
@@ -142,9 +143,14 @@ def unathorized():
 # You now reqiure user id and password to get data .. so use example curl with user id to get access
 $ curl -u miguel:python -i http://localhost:5000/todo/api/v1.0/tasks
 
+--------Implementation (Flask-RESTful extension) --------------------
+Flask-RESTful provides a Resource base class that can define the routing for one or more HTTP methods for a given URL
+# source - https://blog.miguelgrinberg.com/post/designing-a-restful-api-using-flask-restful
 
+As shown below - the add_resource function registers the routes with the framework using the given endpoint. If an endpoint isn't given then 
+Flask-RESTful generates one for you from the class name.
 
-
+RequestParser class is used for validation of PUT request. 
 
 
 
