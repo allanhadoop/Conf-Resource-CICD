@@ -38,6 +38,8 @@ app = Flask(__name__)
 @app.route(/ ,  methods = ['POST'] / [GET] ....) 
 @app.errorhandler
 app.run
+@auth.get_password    #for basic authorization 
+@auth.login_required  #use before whichever function needs login
 
 In a regular web application you would have a login form that posts the credentials, and at that point the server would create a 
 session for the logged in user to continue working, with the session id stored in a cookie in the client browser. Unfortunately doing 
@@ -124,10 +126,21 @@ if __name__ == '__main__':
     app.run(debug = True)
 
 --------Implementation (with basic userid/password security) --------------------
+# The authentication extension gives us the freedom to choose which functions in the service are open and which are protected.
+from flask.ext.httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
+@auth.get_password
+def get_password(username):
+    if username == 'allan':
+        return 'mypassword'
+    return None
 
+@auth.error_handler
+def unathorized():
+    return make_response(jsonify({ 'error' :'Unauthorized access'}), 401)
 
-
-
+# You now reqiure user id and password to get data .. so use example curl with user id to get access
+$ curl -u miguel:python -i http://localhost:5000/todo/api/v1.0/tasks
 
 
 
