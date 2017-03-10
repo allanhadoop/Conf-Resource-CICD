@@ -1,0 +1,149 @@
+# Designing a RESTful API with Python and Flask
+Source - https://www.cs.utexas.edu/~cannata/networking/Class%20Notes/07%20Designing%20a%20RESTful%20API%20with%20Python%20and%20Flask%20-%20miguelgrinberg.pdf
+
+1. Client-Server: Server offers a service, and the client consumes it.
+2. Stateless: Each request from a client must contain all the information required by the server to carry out the request. 
+In other words, the server cannot store information provided by the client in one request and use it in another request.
+3. Cacheable: The server must indicate to the client if requests can be cached or not.
+4. Layered System: Communication between a client and a server should be standardized in such a way that allows intermediaries to respond 
+to requests instead of the end server, without the client having to do anything different.
+ 
+# REST architecture was originally designed to fit the HTTP protocol. REST has resources, Resources are represented by URIs
+# The clients send requests to these URIs using the methods defined by the HTTP protocol
+
+HTTP method          Action 
+-----------------------------------------------------
+GET                 Obtain information about a resource (example - http://example.com/api/orders (retrieve order list))   
+POST                Create a new resource
+PUT                 Update a resource
+DELETE              Delete a resource
+
+The REST design does not require a specific format for the data provided with the requests. In general data is provided in the request 
+body as a JSON blob, or sometimes as arguments in the query string portion of the URL.
+
+-------------Business scenario --- Design --------
+Let's say we want to write a To Do List application and we want to design a web service for it. 
+1. First decide name of the application and version of the API in the URL - ￼http://[hostname]/todo/api/v1.0/
+2. Example of GET method - http://[hostname]/todo/api/v1.0/tasks   ( Retrieve list of tasks) 
+
+We can define a task resource having the following fields:
+ id: unique identifier for tasks. Numeric type. 
+ title: short task description. String type. 
+ description: long task description. Text type. 
+ done: task completion state. Boolean type.
+ 
+# Libraries and Annotations in the Flask web framework 
+from flask import make_response, request, url_for, jsonify, abort, Flask
+app = Flask(__name__)
+@app.route(/ ,  methods = ['POST'] / [GET] ....) 
+@app.errorhandler
+app.run
+
+In a regular web application you would have a login form that posts the credentials, and at that point the server would create a 
+session for the logged in user to continue working, with the session id stored in a cookie in the client browser. Unfortunately doing 
+that here would violate the stateless requirement of REST, so instead we have to ask clients to send their authentication information 
+with every request they send to us.REST follows HTTP protocol which provides 2 authentication ( Basic and Digest).
+# install Flask-HTTPAuth extension  
+
+-------------Business scenario --- Implementation --------
+
+# Flask web application is structured.
+
+sudo easy_install
+sudo easy_install pip
+sudo pip install virtualenv
+
+mkdir todo-api
+cd todo-api
+virtualenv flask
+sudo nano app.py
+$ flask/bin/pip install flask-httpauth
+
+--------Implementation (No security) --------------------
+#!flask/bin/python
+
+from flask import Flask, jsonify, abort, request
+from flask import make_response
+from flask import url_for
+
+app = Flask(__name__)
+tasks = [
+    {
+        'id' : 1,
+        'title' : u'Buy groceries',
+        'description' : u'milk, cheese, pizza',
+        'status' : False
+    },
+    {
+        'id': 2,
+        'title': u'Buy groceries',
+        'description': 'curry, rice and chapati',
+        'status': False
+    }
+]
+# below function illuminate the id so that client doesnot see id in the response.
+def make_public_task(tasks):
+    new_task = {}
+    for field in tasks:
+        if field == 'id':
+            new_task['uri'] = url_for('get_task', task_id = tasks['id'], _external=True )
+        else:
+            new_task[field] = tasks[field]
+    return new_task
+
+@app.route('/todo/api/v1.0/tasks', methods = ['GET'])
+def get_tasks():
+    return jsonify({'tasks' : map(make_public_task, tasks)}) #this will hide id to the client response
+# 
+@app.route('/todo/api/v1.0/tasks/<int:task_id>',methods = ['GET'])
+def get_task(task_id):
+    task = filter(lambda t:t['id'] == task_id, tasks)
+    if len(tasks) == 0:
+        abort(404)
+    return jsonify({'tasks' : task[0] })    # this will show id to the client in response
+# 
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}),404)
+# 
+
+@app.route('/todo/api/v1.0/tasks', methods = ['POST'])
+def create_task():
+    if not request.json or not 'title' in request.json:
+        abort(400)
+    task = {
+        'id' : tasks[-1]['id'] + 1,
+        'title' : request.json['title'],
+        'description' : request.json.get('description', ""),
+        'status' : False
+    }
+    tasks.append(task)
+    return jsonify({'task' : task}),201
+
+if __name__ == '__main__':
+    app.run(debug = True)
+
+--------Implementation (with basic userid/password security) --------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
