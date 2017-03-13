@@ -1,3 +1,12 @@
+So JSON toekn based authentication is different from OAuth model. In case of toekn based, user id/passwords is stored in some database as
+opposed to cookie at browser. So below example explains how it can be used with flask framework
+
+---------------Example - flask + token + authentication 
+# Source - https://realpython.com/blog/python/token-based-authentication-with-flask/
+Token-Based Authentication With Flask  -- 
+# git - https://github.com/realpython/flask-jwt-auth/blob/master/manage.py
+
+---------------Example - Consumer+ Provider + resource model - This uses OAuth model 
 Source  - https://yeti.co/blog/oauth2-with-django-rest-framework/
 
 Example - consider a website or application that asks you for permission to access your Facebook account and post something to your 
@@ -6,12 +15,91 @@ Facebook is the provider. Even if you grant access and the consumer application 
 information. This usage of OAuth does not apply to a client/server RESTful API. Something like this would only make sense if your RESTful 
 API can be accessed by third party applications (consumers).
 
+Steps - 
+1. Create uder id at reddit.com 
+2. Now create app and cature client id and secret id ( this is same as AWS access id/secret key) so that we dont need to share reddit user
+credentials. 
+3. Pass state param of redirect uri 
 
-# Source - https://realpython.com/blog/python/token-based-authentication-with-flask/
-Token-Based Authentication With Flask  -- 
 
+# This is for reddit consumer -- provider -- resource model
+import requests.auth
+import requests
+import urllib
+from uuid import uuid4
+from flask import Flask, abort, request
 
+# below 3 lines are configured at reddit
+client_id = '7JuP2eyjZIGk3w'
+client_secret = '7zeT8Kwe7swpzsX5GBniR6zBlfE'
+redirect_uri = 'http://localhost:65010/reddit_callback'
 
+app = Flask(__name__)
+
+# below is homepage which also get the authorized url and then form callback url output in function
+# reddit_callback(), but before that, it verifies the state that was sent to reddit
+# finally before we show user name , we need to post client details to get the access token
+
+# so state is important to use since it is temporary request token , we cannt use only client id and secret id
+# which is similar to use user id and password -- no use of tokenized access then
+
+@app.route('/')
+def homepage():
+    text = '<a href="%s"> Homepage - Authenticate with reddit</a>'
+    return text % make_authorization_url()
+
+def make_authorization_url():
+    state = str(uuid4())
+    save_created_state(state)
+    params = {"client_id" : client_id,
+              "response_type" : "code",
+              "state" : state,
+              "redirect_uri" : redirect_uri,
+              "duration" : "temporary",
+              "scope" : "identity" }
+
+    url = "https://ssl.reddit.com/api/v1/authorize?" + urllib.urlencode(params)
+    return url
+
+def save_created_state(state):
+    pass
+
+def is_valid_state(state):
+    return True
+
+@app.route('/reddit_callback')
+def reddit_callback():
+    error = request.args.get('error', '')
+    if error:
+        return "Error :" + error
+    state = request.args.get('state', '')
+    if not is_valid_state(state):
+        abort(403)
+    code = request.args.get('code')
+#    return "got the access token %s" % get_token(code)
+    access_token = get_token(code)
+    return "your reddit account name is %s" % get_user(access_token)
+
+def get_user(access_token):
+    headers = {"Authorization" : "bearer " + access_token }
+    response = requests.get("https://oauth.reddit.com/api/v1/me", headers= headers)
+    me_json = response.json()
+    return me_json['name']
+
+def get_token(code):
+    client_auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+    post_data = {"grant_type" : "authorization_code",
+                 "code" : code,
+                 "redirect_uri" : redirect_uri}
+
+    response = requests.post("https://ssl.reddit.com/api/v1/access_token",
+                             auth=client_auth,
+                             data=post_data)
+    token_json = response.json()
+    return token_json["access_token"]
+
+if __name__ == '__main__':
+    app.run(debug=True, port=65010)
 
 
 
