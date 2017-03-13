@@ -1,0 +1,18 @@
+Source  - https://yeti.co/blog/oauth2-with-django-rest-framework/
+
+Example - consider a website or application that asks you for permission to access your Facebook account and post something to your 
+timeline. In this example you are the resource holder (you own your Facebook timeline), the third party application is the consumer and 
+Facebook is the provider. Even if you grant access and the consumer application writes to your timeline, it never sees your Facebook login 
+information. This usage of OAuth does not apply to a client/server RESTful API. Something like this would only make sense if your RESTful 
+API can be accessed by third party applications (consumers).
+
+
+# Source - https://realpython.com/blog/python/token-based-authentication-with-flask/
+Token-Based Authentication With Flask  -- 
+
+
+
+
+
+
+
