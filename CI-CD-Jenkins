@@ -9,7 +9,7 @@ all production traffic. ... Green is now live, and Blue is idle
 
 --------------------------------------------------------------
 # Building RPM package source -  http://www.tldp.org/HOWTO/RPM-HOWTO/build.html
-
+# Jenkins install with Apache reverse proxy - https://www.howtoforge.com/tutorial/how-to-install-jenkins-with-apache-on-ubuntu-16-04/
 --------------------------------------------------------------
 Jenkins is CI/CD tool written in Java. It automatically builds, test and deploy software projects. All we need is a server to host jenkins
 So Jenkins installation needs Java(Open JDK and JRE) , add Jenkins repository and then install jenkins
@@ -49,6 +49,7 @@ sudo apt-get install jenkins
 netstat -a -n -o | grep "8080"
 http://localhost:8080/jenkins OR
 http://<Elastic-IP>:8080  
+
 
 # To run git source code on Jenkins, install git on Jenkins server since Jenkins give source code management SCM to pull code from git, csv etc
 sudo apt-get install git
