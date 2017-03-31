@@ -1,3 +1,4 @@
+# end to end source - https://www.linode.com/docs/applications/puppet/install-and-configure-puppet
 # Source http://www.example42.com/tutorials/PuppetTutorial/#slide-0
 Puppet uses Ruby.It's configuration. mgt tool ( Infrastructure as code)  . Reproducible set up , scalable, aligned environment for dev,test, prod
 Puppet is all about to model everything — 
@@ -36,6 +37,9 @@ Now, puppet apply --modulepath to .puppet folder and then <path of main manifest
 
 if we are using master-client set up then main manifest , node.pp, site.pp stays at master node and 
 from client machine we fire command like puppet agent -t which will pull config from master and apply.
+
+Read more at - https://forge.puppet.com/puppetlabs/apache 
+
 
 
 ----------------------------------------
