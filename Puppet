@@ -6,6 +6,37 @@ Puppet is all about to model everything —
 3. the actions taken during configuration enforcement — as data: 
 each node receives a catalog of resources and relationships, compares it to the current system state, and makes changes as needed to 
 bring the system into compliance.
+----------------------------------------
+Basically , puppet .pp manifests files code is layer on top of linux scripting.. so write .pp script into node.pp and let site.pp 
+import node.pp . Node.pp script can be organized by using modules whih helps to keep it clean. as shown below, user is module
+then initialize using init.pp
+
++ modules
+ + users
+  + manifests
+    - init.pp
+  + files
+
+so structure is /etc/puppet/ --> under this we have main manifest and module folders. When we create new module , create 
+new init.pp and code.pp under new manifest folder under module . init.pp will invoke class and code.pp will have class code.
+
+Now when we do puppet apply , use below syntax
+puppet apply --modulepath <path until manifest> <path till site.pp of main manifest>
+
+# To install modules from puppetlabs(forge module) 
+puppet module install puppetlabs-apache ( example to install apache module)  
+
+when we download module then it goes to .puppet folder in home directory (pwd) . each module has class( chunk of puppet code ) that 
+puppet apply applies on the node.
+so go to manifest folder of .puppet folder and there it wil have init.pp file where you will find class name of the module. 
+plug that class name into main manifest site.pp under node default { include '<class name>': } 
+
+You can valide above config by running - puppet parser validate site.pp 
+Now, puppet apply --modulepath to .puppet folder and then <path of main manifest site.pp>
+
+if we are using master-client set up then main manifest , node.pp, site.pp stays at master node and 
+from client machine we fire command like puppet agent -t which will pull config from master and apply.
+
 
 ----------------------------------------
 # Software related to puppets - 
