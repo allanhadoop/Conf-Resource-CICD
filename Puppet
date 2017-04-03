@@ -1,3 +1,8 @@
+# SO basically , puppet is layer above normal shell sript in netshell.. if you wish to influence any specific file or package then its
+called resource type . all such scipt can be packaged as modules but there is pre-delivered modules by community normally available
+via forge.net called modules.
+Other than that , there are various conf files like puppet.conf , environment.conf , auth.conf, fileserver.conf etc..
+
 # end to end source - https://www.linode.com/docs/applications/puppet/install-and-configure-puppet
 # Source http://www.example42.com/tutorials/PuppetTutorial/#slide-0
 Puppet uses Ruby.It's configuration. mgt tool ( Infrastructure as code)  . Reproducible set up , scalable, aligned environment for dev,test, prod
@@ -50,10 +55,15 @@ whicch modules to be installed on each environment. so each module we install, c
 4. Before you run puppet agent -t or puppet apply site.pp , make sure to add Puppetfile at absolute path (with all declared mod as given 
 in forge.net site which are dependencies)
 
-
+when we run number 4 step above, puppet generates catalog . 
+You will find metadata.json file under relative path module directory. so this metadata.json has dependencies listed for installing that 
+module. puppet function can be called during catalog compliation and it returns the value.
 
 Read more at - https://forge.puppet.com/puppetlabs/apac
-
+---------------------------------------------------------------------------------------
+Puppet main files - 
+1. puppet config file - 
+2. 
 
 
 ----------------------------------------
