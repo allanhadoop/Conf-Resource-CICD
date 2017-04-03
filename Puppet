@@ -14,6 +14,7 @@ then initialize using init.pp
 
 + modules
  + users
+Read more at - https://forge.puppet.com/puppetlabs/apac
   + manifests
     - init.pp
   + files
@@ -38,7 +39,20 @@ Now, puppet apply --modulepath to .puppet folder and then <path of main manifest
 if we are using master-client set up then main manifest , node.pp, site.pp stays at master node and 
 from client machine we fire command like puppet agent -t which will pull config from master and apply.
 
-Read more at - https://forge.puppet.com/puppetlabs/apache 
+Make sure to maintain Puppetfile . https://docs.puppet.com/pe/2016.1/cmgmt_puppetfile.html. It is ruby based DSL which speify
+whicch modules to be installed on each environment. so each module we install, check what we need to specify in Puppetfile from forge site
+-- Create a file name Puppetfile and declare modules here with mod settings
+
+-- High level steps -- 
+1. There are two main folders one at absolte path which is /etc/puppet/manifest where you maintain site.pp and node.pp 
+2. Then there is relative path at ~/.puppet/module where we typically download modules from forge.net
+3. Now, we need to download module from forge.net and then install using command given at forge.net with version (if required) 
+4. Before you run puppet agent -t or puppet apply site.pp , make sure to add Puppetfile at absolute path (with all declared mod as given 
+in forge.net site which are dependencies)
+
+
+
+Read more at - https://forge.puppet.com/puppetlabs/apac
 
 
 
