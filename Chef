@@ -3,6 +3,11 @@
 
 Your workstation------- a Chef server-------- nodes
 
+So cookbooks , policy . Chef development kit and Test-driven infrastructure all goes to chef server and then chef server applies those to nodes
+giving high avaibility to chef server is important so need to build disaster recover for chef server too.
+
+See architecture diagram under architectural folder.
+
 # An environment is a way to map an organization’s real-life workflow to what can be configured and managed when using Chef server. 
 Every organization begins with a single environment called the _default environment, which cannot be modified (or deleted). Additional 
 environments can be created to reflect each organization’s patterns and workflow. For example, creating production, staging, testing, 
@@ -213,6 +218,16 @@ You access Chef Automate's visibility feature through a web interface
 so we need 2 systems and then AWS OpsWorks for chef automation 
 # install the Chef DK(development kit) on your workstation so that you can manage a node remotely.
 Download Chef DK system from https://downloads.chef.io/chefdk
+
+------------------------Installation --------------------------------
+We can either take fully hosted chef server from chef.io (SaaS)  OR we can install chef server on-premise or on AWS (IaaS)
+
+
+
+
+
+
+
 
 
 
