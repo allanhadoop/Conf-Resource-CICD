@@ -1,1 +1,36 @@
-OAUTH2,OpenID connect and JSON Web tokens JWT
+Modern Security for Enterprise Applications - OAUTH2,OpenID connect and JSON Web tokens JWT
+
+OAuth2 --
+
+Autherization server <----> Client --this uses tokent 
+
+json web token (JWT) - 
+1. A client (e.g. web application) requests a token
+2. A issuer issues a token
+3. A resource (e.g. API , key exchange) consumes a token , that has a trust relationship with the issuer.
+
+It has two main sections as follows
+1. Header - 
+    a. Metadata
+    b. Algorithm and Key used
+2. Claims 
+    a. Issuer(iss)
+    b. Audience(aud)
+    c. Expiration(Exp)
+    d. Subject(sub)
+    e. ...and application defined claims
+
+See architecture folder for details of example of header and cliams
+
+
+Token ares - 
+1. Json encoded, 
+2. Symmetric and asymmetric signatures (HMACSHA256-384, ECDSA, RSA) 
+3. Symmetric and asymmetric encryption (RSA, AES/CGM)
+
+
+
+
+
+
+
