@@ -33,7 +33,11 @@ So there are 2 types of car keys ( master key and valley parking keys ) . Same c
 
 Resource server --------------> Client ------------> Resource owner 
 Here resource owner (Car owner)  gives valley parking key(limited access key) to Client ( parking guy) to access data at Resource Server(car)
+So piece of software is allowed access to client by a resource owner since resource owner owns data at resource center, so Oauth2 is more
+of a delegated authorization (access tokens). This is typically used in iOt platform since every client needs separate token 
+
 see architecture diagram .
+
 
 
 
