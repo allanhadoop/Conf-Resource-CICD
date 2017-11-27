@@ -23,10 +23,18 @@ It has two main sections as follows
 See architecture folder for details of example of header and cliams
 
 
-Token ares - 
+Tokens are - 
 1. Json encoded, 
 2. Symmetric and asymmetric signatures (HMACSHA256-384, ECDSA, RSA) 
 3. Symmetric and asymmetric encryption (RSA, AES/CGM)
+
+----------------------------------------------OAuth2-----------------
+So there are 2 types of car keys ( master key and valley parking keys ) . Same concept here in OAuth2
+
+Resource server --------------> Client ------------> Resource owner 
+Here resource owner (Car owner)  gives valley parking key(limited access key) to Client ( parking guy) to access data at Resource Server(car)
+see architecture diagram .
+
 
 
 
