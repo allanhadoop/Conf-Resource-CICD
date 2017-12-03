@@ -61,6 +61,53 @@ and only do the port forwarding
 
 $ ssh -nNT -L 9000:imgur.com:80 user@example.com
 
+-----------------------------------------------------------------DNS ------------------------------------------
+
+# Use wireshark to analyze your internet data packets . In wireshark , we will see various packets under various protocols like UDP, TCP , 
+ICMP ( Internet control messaging protocol) . 
+
+Standard query will tell which domain we are trying to open or query to DNS and Standard reponse will show its IP address.
+DNS tries to check Host file first to see if it can answer standard query to get IP address of domain that we are typing, if not found
+then it searches DNS cache and if not found there too then it checks on DNS server
+
+Firs update Host files and then flush DNS cache. 
+Host files at Windows = /etc/hosts
+Host files at Mac = /etc/hosts and to flush DNS cache - dscacheutil - flushcache; sudo killall - HUP mDNSResponder 
+Host files at Linus = /etc/hostss 
+
+To Check what is already there in DNS cache, 
+Windows machine - ipconfig /displaydns
+On Mac - 
+>> sudo killall -INFO mDNSResponder
+A SIGINFO signal will dump a snapshot summary of the internal state to /var/log/system.log:
+
+Additionally , we can specify loopback ip 127.0.0.1 with CantGetThereFromHere.com sites so that no one can access those sites since it will 
+go to loopback circle and will be blocked.
+127.0.0.1     CantGetThereFromHere.com 
+
+So Your machine ---> talkes to locally installed DNS server for ip address for given domain name --> if not found then local DNS server
+will connect to DNS root server and it goes in chain till it find IP. and once found it make final entry into globalmantic web server. Check architecural diagram. Local DNS server has root hints , 
+that is how it know which is root DNS server to contact to get IP address. Root hints stores those root DNS server entry in your local DNS 
+server. On Windows it can be found at LocalDisk -->Windows --> System32 --> dns --> Cacahe.dns file. 
+
+Authoritative - 
+If you get IP address from your local DNS server zone file then it is authoritattive.
+
+Non-Authoritative - This means if local DNS server has to talk to root DNS server and other .com servers to get the IP address
+
+Root Hint files has different structure as shown in the architecture diagram . 
+It has root server name(which always ends with .) , then number (which is time to live (TTL) which says how long data valid), 
+NS (name server name), A (which is IPv4 address) and AAAA(which is IPv6 address). 
+
+
+
+
+
+
+
+
+
+
 
 
 
