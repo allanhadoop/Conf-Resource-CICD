@@ -86,7 +86,9 @@ go to loopback circle and will be blocked.
 127.0.0.1     CantGetThereFromHere.com 
 
 So Your machine ---> talkes to locally installed DNS server for ip address for given domain name --> if not found then local DNS server
-will connect to DNS root server and it goes in chain till it find IP. and once found it make final entry into globalmantic web server. Check architecural diagram. Local DNS server has root hints , 
+will connect to DNS root server and it goes in chain till it find IP. and once found it make final check at that particular domain 
+web server so that it can provide the IP that you are looking for your domain. 
+Check architecural diagram. Local DNS server has root hints , 
 that is how it know which is root DNS server to contact to get IP address. Root hints stores those root DNS server entry in your local DNS 
 server. On Windows it can be found at LocalDisk -->Windows --> System32 --> dns --> Cacahe.dns file. 
 
@@ -99,9 +101,17 @@ Root Hint files has different structure as shown in the architecture diagram .
 It has root server name(which always ends with .) , then number (which is time to live (TTL) which says how long data valid), 
 NS (name server name), A (which is IPv4 address) and AAAA(which is IPv6 address). 
 
+-----Iterative and Recursive queries and recursion ---
+If root , .com and other DNS servers are involved to get the IP of the domain that you are looking for then it is called iterative and this
+process is called recursion.
+if your local DNS server can get you IP for your domain then it is called recursive queries.
 
+----DNS Hierarchy - See diagram under architecture folder
+--> .Root DNS server ---> .com DNS server ----> .other domain server 
+Whether it is recursive or iterative query, how it happened in the backend can be visible in wireshark under DNS section.
+There is recursive flag.
 
-
+------DNS Zones ( Forward and Reverse ) --------------
 
 
 
