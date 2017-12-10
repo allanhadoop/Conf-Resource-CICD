@@ -112,7 +112,12 @@ Whether it is recursive or iterative query, how it happened in the backend can b
 There is recursive flag.
 
 ------DNS Zones ( Forward and Reverse ) --------------
+1. Forward lookup zones - Find IP address of given host name..This is normal and most use scenario 
+2. Reverse lookup zones - Get host name for given IP address. Example nslookup 10.20.23.2 or traceroute or SMTP will try to find domain 
+or host name
 
+
+----Resource Records ----
 
 
 
