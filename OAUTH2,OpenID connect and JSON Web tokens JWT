@@ -45,13 +45,23 @@ Tokens are -
 So there are 2 types of car keys ( master key and valley parking keys ) . Same concept here in OAuth2
 
 Resource server --------------> Client ------------> Resource owner 
-Here resource owner (Car owner)  gives valley parking key(limited access key) to Client ( parking guy) to access data at Resource 
-Server(car) So piece of software is allowed access to client by a resource owner since resource owner owns data at resource center, 
-so Oauth2 is more of a delegated authorization (access tokens). This is typically used in iOt platform since every client needs 
-separate token 
+Here resource owner (Car owner)  gives valley parking key(limited access key,not master key - this is authorization server) to Client ( parking guy) to access 
+data at Resource Server(car) So piece of software is allowed access to client by a resource owner since resource owner owns data at 
+resource center, so Oauth2 is more of a delegated authorization (access tokens). This is typically used in iOt platform since every 
+client needs separate token 
 
 see architecture diagram .
 
+oAuth2 Flows - 
+1. Authorization Code flow 
+    a. Web application client 
+        . Request authorization 
+        . Request token (valley key) 
+        . Access resource (Car)
+2. Implicit Flow
+    a. Native/local clients
+        . Request authorization and token (valley key) 
+        . Access resources (Car) 
 
 
 
