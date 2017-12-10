@@ -62,6 +62,52 @@ oAuth2 Flows -
     a. Native/local clients
         . Request authorization and token (valley key) 
         . Access resources (Car) 
+3. Resource Owner password credential flow 
+4. Client credential flow
+
+1. Authorization Code flow (for web applications clients) 
+Step1 - Here client sends below request to resource owner which in turns sends it to auth.server
+    GET/ Authorize
+      client_id=webapp&  --this is identity of client 
+      scope=resource&  --this is what client is looking to access as resource
+      redirect_uri=https://webapp/cb&  --auth server gets redirect to this uri
+      response_type=code&   --this code is sent by auth server 
+      state=123          --this is sent by client to auth server and this is received back so that client know which request it corresponds
+
+ Step2- Token request . This is what client sends token request to auth.server.
+ POST/token 
+   Authorization: Basic (client_id:secret)
+   grant_type=auhorization_code&
+   authorization_code=xyz&
+   redirect_uri=https://webapp/cb
+   
+Step3- Token response . This is what auth. server sends to client
+{
+   "access_token" : "abc",
+   "expires_in" : "3600",
+   "token_type" : "Bearer",
+   "referesh_token" : "xyz"
+ }
+ 
+ 
+ 
+ 
+
+
+
+
+   
+   
+   
+   
+   
+  
+  
+  
+  
+
+
+
 
 
 
