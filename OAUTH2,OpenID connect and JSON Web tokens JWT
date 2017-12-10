@@ -1,18 +1,19 @@
 Modern Security for Enterprise Applications - OAUTH2,OpenID connect and JSON Web tokens JWT
-
+Youtube - https://www.youtube.com/watch?v=oXxbB5kv9OA
+See architecture folder for details of example of header and cliams
 OAuth2 --
 
-Autherization server <----> Client --this uses tokent 
+Autherization server <----> Client --this uses token 
 
 json web token (JWT) - 
 1. A client (e.g. web application) requests a token
 2. A issuer issues a token
 3. A resource (e.g. API , key exchange) consumes a token , that has a trust relationship with the issuer.
 
-It has two main sections as follows
+JSON web token has two main sections as follows
 1. Header - 
-    a. Metadata
-    b. Algorithm and Key used
+    a. Metadata (Example password) 
+    b. Algorithm and Key used (eg. HSC256 HS384, HS512) 
 2. Claims 
     a. Issuer(iss)
     b. Audience(aud)
@@ -20,8 +21,20 @@ It has two main sections as follows
     d. Subject(sub)
     e. ...and application defined claims
 
-See architecture folder for details of example of header and cliams
+In the create JWT link below, you can enter all of the above info and generate JWT 
 
+
+Links for JSON web tokens(JWT) - Note it is http , not www.
+1. Create tokens - 
+http://jwtbuilder.jamiekurtz.com
+http://kjur.github.io/jsjws/tool_jwt.html 
+
+2. Verify JWT tokens
+http://jwt.io
+
+3. Base64 Encode/Decode
+https://base64encode.org
+https://base64decode.org
 
 Tokens are - 
 1. Json encoded, 
@@ -32,9 +45,10 @@ Tokens are -
 So there are 2 types of car keys ( master key and valley parking keys ) . Same concept here in OAuth2
 
 Resource server --------------> Client ------------> Resource owner 
-Here resource owner (Car owner)  gives valley parking key(limited access key) to Client ( parking guy) to access data at Resource Server(car)
-So piece of software is allowed access to client by a resource owner since resource owner owns data at resource center, so Oauth2 is more
-of a delegated authorization (access tokens). This is typically used in iOt platform since every client needs separate token 
+Here resource owner (Car owner)  gives valley parking key(limited access key) to Client ( parking guy) to access data at Resource 
+Server(car) So piece of software is allowed access to client by a resource owner since resource owner owns data at resource center, 
+so Oauth2 is more of a delegated authorization (access tokens). This is typically used in iOt platform since every client needs 
+separate token 
 
 see architecture diagram .
 
