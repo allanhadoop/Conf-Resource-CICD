@@ -83,12 +83,19 @@ Step1 - Here client sends below request to resource owner which in turns sends i
    
 Step3- Token response . This is what auth. server sends to client
 {
-   "access_token" : "abc",
+   "access_token" : "abc",  -- this is short live for 1 hour (3600) 
    "expires_in" : "3600",
    "token_type" : "Bearer",
-   "referesh_token" : "xyz"
+   "referesh_token" : "xyz"  --long lived token 
  }
  
+ Step4- (Refresh token) - If access token expires then use referesh token as shown below
+ POST/token
+   Authorization: Basic (client_id:secret)
+   grant_type=refresh_token&
+   refresh_token=xyz
+   
+   
  
  
  
