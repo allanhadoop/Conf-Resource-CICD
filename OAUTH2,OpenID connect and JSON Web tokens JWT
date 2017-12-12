@@ -5,7 +5,7 @@ OAuth2 --
 
 Autherization server <----> Client --this uses token 
 
-json web token (JWT) - 
+-------------------------------------------------json web token (JWT) - 
 1. A client (e.g. web application) requests a token
 2. A issuer issues a token
 3. A resource (e.g. API , key exchange) consumes a token , that has a trust relationship with the issuer.
@@ -95,7 +95,160 @@ Step3- Token response . This is what auth. server sends to client
    grant_type=refresh_token&
    refresh_token=xyz
    
-   
+--- Website to unpack or decode tokens --  openidtest.uninett.no/jwt
+
+2. Implicit Flow (Native / local clients on your laptop) --This is for example package local java application which can get tokem locally
+to authenticate and use .
+Step1a - Authorization Request - This is send by client to auth. server locally
+
+GET / authorize?
+  client_id=nativeapp&
+  scope=resource&
+  redirect_uri=http://localhost/cb&
+  reponse_type=token&
+  state=123
+
+Step1b - Token response from auth server directly without userid/password creation process
+GET / cb#
+ access_token=abc&
+ expires_in=3600&
+ state=123
+ 
+Step2-Resource access - Client accesses resources from resource server
+GET /resource
+  Authorization:
+    Bearer access_token
+  
+
+-----------------------------------------------Open ID connect ------------------------
+OpenID connect (http://openid.net/connect/)  is built on top of oAuth2. Only difference is it has two new concepts as follows
+1. ID token 
+2. UserInfo endpoint
+and some additional protocols like
+    . discovery and dynamic registeration 
+    . session management
+
+There are four players - 
+. Identity provider
+. Authorization Endpoint
+. Token Endpoint
+. UserInfo Endpoint
+
+Step1a - Authorization request - so here client sends request to auth. endpoint
+GET/Authorize?
+  client_id=webapp&
+  redirect_uri=https://webapp/ab&
+  scope=openid profile&                       ---this is new and must for openid connect to work. This is user profle like email,name etc
+  response_type=code&
+  state=123
+ 
+Step1b : Authrentication 
+Here if user is not authenticated then it goes to identify provider which does user authentication. So this is new compare to oAuth step
+
+Step1c : Consent
+Here webapp application will ask for permission to access user profile to client.
+
+Step2a - Token Request - So after auth.provider and identity provider is done , client sends token request to token endpoint
+POST/ token 
+  Authorization: Basic (client_ud:secret)
+  grant_type=authorization_code&
+  authorization_code=abc&
+  redirect_uri=https://webapp/cb
+  
+ Step2b - Token response 
+ Here Token endpoint will send toen to client 
+ {
+   "access_token" : "abc",
+   "id_toke" : "uvw",                     --so this is user id token extra compare to oAuth2
+   "expires_in" : "3600",
+   "token_type" : "Bearer",
+   "Refresh_token" : "xyz"
+ }
+ 
+ Step 3a - Userinfo request - Here client can get user info from user endpoint
+ GET/userinfo
+  Authorization:
+    Bearer access_token
+    
+    
+ Step 3b - Userinfo response
+ {
+   "sub" : "4335456465",
+   "name" : "Jane de",
+   "email" : "janns@gmail.com"
+  }
+ 
+ 
+ ----------------------------JWT Useful links ----------------------------------
+ JWT Debugger - http://openidtest.uninett.no/jwt
+ 
+ Microsoft JWT - http://nuget.org/packages/microsoft.identitymodel.tokens.jwt/
+ 
+ Specs - 
+ http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-08
+ http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-11
+ http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption-11
+ 
+ JAVA JWT - https://bitbucket.org/nimbusds/nimbus-jose-jwt/wiki/Home
+ 
+ ------------------------------oAuth2 Userful Links ----------------------------------
+ 
+ Specs - 
+ http://tools.ietf.org/html/rfc6749
+ http://tools.ietf.org/html/rfc6750
+ 
+ 
+Threat Model 
+http://tools.ietf.org/html/rfc6819
+
+Thinktecture.identityModel 
+https://github.com/thinktecture/Thinktecture.IdentityModel.45
+
+Thinktecture.IdentityServer
+https://github.com/thinktecture/Thinktecture.IdentityServer.v2
+
+DotNetOpenAuth
+http://dotnetopenauth.net/
+
+------------------------------------Open ID connect ---------------------------------------
+
+Specs - 
+http://openid.net/connect
+
+Google "Open ID connect" signin 
+https://developers.google.com/accounts/docs/OAuth2Login
+https://developers.google.com/accounts/cookbook/technologies/OpenID-Connect
+
+Reference Implementation 
+https://github.com/mitreid-connect/OpenID-Connect-Java-Spring-Server
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+  
+  
+
+
+
+
+
+
+  
+
+
+
  
  
  
