@@ -117,7 +117,42 @@ There is recursive flag.
 or host name
 
 
-----Resource Records ----
+----Creating host , resource Records ---------------------------
+A - IPv4 record
+AAAA - IPv6 record
+CNAME - Cananocal name /nick name 
+SRV - Service Locator record - e.g. different services that are running on microsoft server . there are other SRVs 
+MX - Email exchange records that denote mail server
+NAPTR - Name authority pointer
+NS - name server record , meaning DNS server is running here.
+SOA - Start of authority or DNS server providing authoratative information 
+
+----------------------------Zone types ----------------------------------
+1. Primary Zones
+  . Authoratative Zone Information 
+  . Contains read/write copy of zone data
+  . Accepts dynamic updates from clients(ddns)
+2. Secondary Zone Server
+   - basically these are copy of primary DNS zone server just to sever local clients . it is a copy of primary DNS zones.
+   Also it is read only. initially we do AXFR (meaning all data is transfered) and after that IXFR (incremental data change is transfered)
+   So data from primary DNS server can be transfered using UDP (all data in one packet) or TCP (if data is large then it is divided into
+   small packets)
+3. Stub Zones - Its like one DNS server referring to anthoer DNS server if client wish to connect to that DNS server. 
+   - see architectural diagram
+4. Cache Only
+5. Zone Transfers
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
