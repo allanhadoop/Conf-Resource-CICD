@@ -1,0 +1,86 @@
+Linux - Managing Web services - Apache2
+See architectual diagram 
+------------About apache config file------------------------------
+To improve response time, apache manages a pool of spare server processes as follows - 
+1. StartServers (8) 
+2. MinSpareServers(5)
+3. MaxSpareServers(20)
+4. ServerLimit(256)
+5. MaxClients(256)
+
+Containers - Container directives use XML-style openings/closing tags as follows - 
+<Directory "/var/www/cgi-bin">
+    AllowOverride None
+    Options None
+    Order allow, deny 
+    Allow from all 
+</Directory>
+
+Other containers include <Locatio> and <VirualHost>
+
+--In the apache2 configuration file, if you wish to see non-comment lines then user grep
+grep -v '^#' /etc/apach2/apache2.conf 
+
+----------------------Creating content ---------------
+http://example.com/foo.html   ->here foo.html is the url 
+/var/www/html/foo.html   -->here /var/www/html is the document root.
+See also diagram for creating content . Below is minimum home page code 
+<html>
+<head>
+<title> The Library </title>
+</head>
+<body>
+   <h2> Welcome to our library !</h2>
+   <br />  <hr> <br />
+   <img src="images/library.jpg">
+</body>
+</html>
+------------------------------Virtual Host -------------------------
+Virtual hosting is a method for hosting multiple domain names (with separate handling of each name) on a single server or a pool of server
+-wiki
+
+Scenario - We have 2 sites ( one for east regional office and west regional office) both sites are accessed by user. so virtual host 
+is going to allow user to either navigate to east or west site as requested. So here we can implement NAME BASED VIRTUAL HOSTING
+
+see diagram for Name based virtual hosting.
+How does Apache know which site to serve ---> The host field in the http request header identifies which site (virtual host to serve) 
+example - 
+
+GET http://east.example.org/HTTP /1.1 
+host is east.example.org which is what is matched against the <VirtualHost> container in the apache configuration file 
+See diagram to see how to configure this <VirtualHost> container in config. file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
