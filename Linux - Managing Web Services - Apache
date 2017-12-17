@@ -50,6 +50,22 @@ GET http://east.example.org/HTTP /1.1
 host is east.example.org which is what is matched against the <VirtualHost> container in the apache configuration file 
 See diagram to see how to configure this <VirtualHost> container in config. file
 
+Common example of spitting out Error log and Transfer log to other folders
+<VirtualHost *:80>
+  ServerName east.example.com
+  DocumentRoot /var/www/html/east
+  ErrorLog /var/www/apache2/east/error_log
+  TransferLog /var/www/apache2/west/acces_log
+</VirtualHost>
+
+and /etc/hosts may look like below 
+127.0.0.1  localhost
+127.0.0.1  east.example.com
+127.0.0.1  west.example.com
+
+-----need to check where to do <VirtualHost> code in Ubuntu .. there is no sample code at apache2.conf 
+
+
 
 
 
