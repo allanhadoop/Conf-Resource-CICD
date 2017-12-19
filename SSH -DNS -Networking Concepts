@@ -139,8 +139,16 @@ SOA - Start of authority or DNS server providing authoratative information
    small packets)
 3. Stub Zones - Its like one DNS server referring to anthoer DNS server if client wish to connect to that DNS server. 
    - see architectural diagram
-4. Cache Only
-5. Zone Transfers
+4. Cache Only - This is normal DNS server that caches every IP that DNS server resolves.
+
+-----------------------------------Forwarder and Conditional Forwarder-------------------------
+Forwarder is a DNS server that it should forward all queries to specific IP address (which is another DNS server , maybe ISP) .
+See diagram for more detail.
+Conitional forwarding meaning,for given specific domain, client DNS server has entry of IP address of another DNS server which should 
+be contacted for specific query. So client wants to contact to specific DNS server is called conditional.
+See diagram.
+
+
 
 
 
