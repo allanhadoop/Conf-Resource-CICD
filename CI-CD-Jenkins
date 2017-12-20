@@ -153,6 +153,13 @@ Github steps -
 the service list.
 
 
+--------------------------------------Summary ------------------------
+- Jenkin is installed using jenkins.war file --> java -jar jenkins.war
+- All Jenkins info goes to ~/.jenkins folder
+- Job related info goes to ~/.jenkins/jobs/Config.xml
+- Jenkins pipeline is more of a microservices and for each service , we code in Groovy
+- Jenkins build related into goes to ~/.jenkins/workplace 
+- If we add new config.xml under ~/.jenkins/jobs then after refershing front-end it will show new job based on newly added config.xml
 
 
 
