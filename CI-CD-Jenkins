@@ -162,6 +162,18 @@ the service list.
 - If we add new config.xml under ~/.jenkins/jobs then after refershing front-end it will show new job based on newly added config.xml
 
 
+- So new Jenkins pipeline is all about using Groovy code under snippet generator .
+- When we use "Stage" keyword in groovy, it breaks piece of groovy code into blocks for better analysis of build
+- For jenkins email , we can use docker mailhog email image
+- See master-agent node architecture diagram, for that purpose, we need node { } to run job on speciifc node
+- To take back up of jenkins, we can use .jenkins fole
+- if you wish to run test on a separate machine, then add new node ( agent) in groovy code. Adding a new node means adding new workspace
+so it may get executed on different machine
+- Agent can have multiple executor so job can get executed on multiple executors.
+- There are different types of executor - Exanple, for checking user input confirmation whether to deploy build in production or not, 
+we can use flyweight executor. We can use INPUT tag to get the user input prior to production deplyment
+
+-- Explore what is cloud pooling. Adding a node manually in jenkins is not a good practice
 
 
 
