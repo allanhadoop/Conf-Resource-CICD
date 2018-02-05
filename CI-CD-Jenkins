@@ -176,7 +176,20 @@ we can use flyweight executor. We can use INPUT tag to get the user input prior 
 -- Explore what is cloud pooling. Adding a node manually in jenkins is not a good practice
 
 
+There is snippet generator in pipeline to build auto groovy code based on microservices
+Stage ‘check’ — stage help to break groovy code into parts as milestones
+Docker has mailhog as email images which can be used for Jenkins email
+Check diagram of master agent architecture , for pipeline, we therefore need node { } to run job on node 
+There are plugins for HTML reports ..which can be installed and then it shows in snippet generator window 
+If we need to take backup of Jenkins then use .jenkins file 
+If we want to use snippet generator for windows machine then instead of sh , we use windows command bat .. and for ls , we use dir …. so there are few differences. 
 
+If you wish to run test in separate parallel process then add new node (agent) in groovy code. Adding new node meaning adding new workspace so it may get execute on different computer 
+. So agent can have multiple executor depending on number of parallel builds that you wish to do. Once new agent is added then on left side panel, it will show master and new node name… Under master , if it shows 2 idle then it means there are 2 executors . See diagram. Now we can have one dedicated node to run docker machine and tag that node as ‘Docker’ , we can then specify that name in our groovy code so that code under that node { } will run on that agent/machine . 
+
+Explore what is cloud pooling to adjust number of Jenkins agents depending on build processing loads. Adding node manually in jerkin is not a good solution .
+
+There are different types of executors, for putting user input confirmation whether to deploy pipeline to production or not , can be managed using INPUT tag outside of node {} . There is one dedicated executor on master called flyweight executor which can be used for this purpose.
 
 
 
