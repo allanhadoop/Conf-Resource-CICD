@@ -148,6 +148,651 @@ Conitional forwarding meaning,for given specific domain, client DNS server has e
 be contacted for specific query. So client wants to contact to specific DNS server is called conditional.
 See diagram.
 
+-------------------Linux DNS - Bind9/Named server----
+------------------------------------------------------
+Linux network Concepts - DNS 
+
+System involved here - Ubuntu (this will be used as master later) and CentOS ( this will be used as slave later) 
+
+All centOS packages are at below link 
+https://centos.pkgs.org/6/
+
+BIND Caching only server
+DNSMasq
+Client tools
+BIND zones
+Troubleshooting BIND
+Configuring BIND slave servers
+Securing DNS
+PowerDNS with MySQL 
+
+
+—— There are different DNS servers like Bind, DNSMasq , djbDNS , PowerDNS ——————————— 
+
+—
+lsb_release -d                  -to check OS details version 
+Apt-cache search bind    —>to check bind server
+Aptitude search “?name(^bind)”  —> this will search bind server where name begins with bind 
+Sudo apt-get install bind9   -> Install bind9 server
+
+Service bind9 status 
+
+Netstat -tnlp    -> check where we see “named” server that is bind server . Mainly runs on port 53 
+
+Now run quick test - on www.pluralsight.com using dig command( this is used for DNS lookup utility) 
+
+Dig www.pluralsight.com @127.0.0.1
+
+——————DNS Configuration files ——— 
+To list content of bind server , use below command on Ubuntu 
+Config file is at 
+
+/etc/bind/named.conf
+/etc/bind/rndc.key   - only readable by bind user and group 
+named -v                - to check version of bind9 server . Here named is a deamon that bind9 server runs 
+
+Dpkg -L bind     (here -L switch is to list files) 
+
+——————Zone files 
+There are zone files starting db.  . Some examples are db.local 
+db.127 is for reverse lookup zone
+
+
+So basically /etc/bind/named.conf.default.zone file has all references set to db files. Example db.local file is referenced in named.conf.default.zone file. 
+
+Chroot jail — this is help to prevent malicious . A chroot command on Unix operating systems is an operation that changes the apparent root directory for the current running process and its children.When you change root to another directory you cannot access files and commands outside that directory.This directory is called a chroot jail. Changing root is commonly done for system maintenance, such as reinstalling the bootloader or resetting a forgotten password.
+
+File /etc/default/bind9 has all the configuration about chroot 
+
+———— Named and rndc 
+
+To control DNS server, we can use rndc command to control name service , example as below 
+
+Sudo -u bind rndc status  — so basically DNS server is running using bind user. 
+sudo -u bind rndc-confgen      — this will allow access to bind service from another host . By default it is disabled.
+
+
+———————Server tools 
+We can use below command to check configuration 
+
+Sudo named-checkconf
+Sudo named-checkzone localhost /etc/bind/db.local 
+
+
+—————————— Client tools 
+
+Client tools can help to understand how is our DNS server doing such as dnsutils 
+Nslookup -query= A www.pluralsight.com     — this will return IP info of site.
+Dig -t A www.pluralsight.com  @127.0.0.1                       —this is also another client side tool 
+
+
+Sometime there are two DNS servers like below
+127.0.0.1 — Bind and 127.0.1.1 — DNSmasq
+
+
+—————————————————————Installing Bind in CentOS ———————————
+Yum install bind bind-utils 
+
+Systemctl enable named
+Systemctl start named
+
+Sudo firewall-cmd --permanent --add-port=53/tcp
+sudo firewall-cmd --permanent --add-port=53/udp
+sudo firewall-cmd --reload
+
+DNS files - 
+/etc/named
+/var/named 
+/etc/sysconfig/named
+/usr/lib/systemd/system/named.service.  -Here it is mainly how to control named deamon. This file has instruction what to refer at the time of starting the named service 
+There is environment file which has $options that we specify in sysconfig file at /etc/sysconfig/named during starting up the deamon
+
+In Ubuntu , files are named db.* whereas in CentOS, files are named after named.* 
+
+So in both the distribution , we can use rndc status command to check the status info of named deamon or service . 
+
+So bind server can be set up as a 
+1. Cached only server (this is default mode) 
+2. Forwarding (ask another server to do weblink lookup for given ip) 
+3. Master (we have read-write copy of zone file) 
+4. Slave server( we only have read only copy of zone file) 
+
+
+————— ——————Configure bind server to listen on new IP  instead of just on localhost ———
+We can configure listening-on parameters on /etc/named.conf file. So we can add new IP where we can listen named server in addition to what is configured there for localhost ip. We can also add ip with subnet example ( 10.XX.31/24) under allow_query
+
+Now reload using rndc reload and check netstat command. It will show new IP listening named server. So now if we test this by below command, it should work
+
+>> dig www.pluralsight.com @new IP address here (10.XX.31.163 for example) . 
+
+——————————— Installing and configuring DNSmasq on CentOS —————————— 
+Yum install dnsmasq
+Groupadd -r dnsmasq && useradd -rg dnsmasq dnsmasq —— this will add user and group 
+<customize dnsmasq.conf>.  —here we will configure dnsmasq config file . For this we can move original dnsmasq file as below to backup file and then create new dnsmasq.conf file.
+
+mv dnsmasq.conf dnsmasq.$(date + %F)    
+
+Systemctl enable dnsmasq 
+Systemctl start dnsmasq 
+
+
+—— — — —  — — tighten up dnsmasq server .. All these settings commands are at /etc/dnsmasq.conf — ——————
+Domain needed        — this will ensure we have domain instead of just dot.
+Bogus-priv   —this will restrict setting up bogus private IP addresses 
+No-hosts      — this means we are telling server not to look into local host file 
+Dns-forward-max=100           —this means number of clients we can have connected 
+Cache-size=500                    —this means how many named records we will store 
+Resolv-file=/etc/resolv.dnsmasq    — this means use our resolve file instead of standard one
+No-poll                     - this means we will not continue to look at resolv.conf for changes 
+
+
+Now also set up firewall 
+Firewall-cmd  —- permanent —add-port=53/tcp 
+Firewall-cmd  —- permanent —add-port=53/udp
+Firewall-cmd — - reload
+
+—————————— Configuring dnsmasq.conf file - bare minimum parameter—————
+
+1. listen-address — specify interface where you want dnsmasq to listen for DHCP and DNS requests, example. Eth0 or loopback IP wherever you want dnsmasq to listen on … this is not a port , this is interface 
+
+2. Port - specify which port you want to assign for dnsmasq to listen on 
+
+3. Bind-interfaces -  On systems which support it, dnsmasq binds the wildcard address, even when it is listening on only some interfaces. It then discards requests that it shouldn't reply to. This has the advantage of working even when interfaces come and go and change address. If you want dnsmasq to really bind only the interfaces it is listening on, uncomment this option. About the only time you may need this is when running another nameserver on the same machine.
+ 
+4. user= specify dnsmasq user name
+
+5. Group=  specify dnsmasq group name
+
+6. Pid-file=/var/run/dnsmasq.pid    —specify the pid file location .  Pid files means process id file.. it indicates that process is running . 
+
+7. Resolv-file=/etc/resolv.myfile     — typically /etc/resolv-conf file points to local server as a name server . We can create our new file called resolv.myfile which can have following two google name servers 
+
+Sudo nano resolv.myfile
+Nameserver 8.8.8.8
+Namesever 8.8.4.4
+
+So earlier when we had run systemctl status dnsmasq.server, it had shown name server as local IP address, after adding resolv.myfile with google namesevers , this status will show google name servers. To clean cache, we can restart the service otherwise it will show some address below /etc/hosts line as shown below 
+ 
+Jan 12 02:19:36 ispuncentos dnsmasq[6680]: reading /etc/resolv.myfile
+Jan 12 02:19:36 ispuncentos dnsmasq[6680]: using nameserver 8.8.8.8#53
+Jan 12 02:19:36 ispuncentos dnsmasq[6680]: using nameserver 8.8.4.4#53 
+Jan 12 02:39:25 ispuncentos dnsmasq[7224]: read /etc/hosts - 2 addresses
+
+
+8. Domain-needed ——— meaning domain without dot is not allowed
+9. Bogus-priv            — meaning no bogus ip allowed
+10. Dns-forward-max=100 
+11. Cache-size=500
+12. No-pool
+
+
+So finally it looks like below
+
+listen-address=127.0.0.1,10.XX.30.164
+domain-needed
+bogus-priv
+dns-forward-max=100
+cache-size=500
+no-poll
+no-hosts
+port=53
+bind-interfaces
+user=dnsmasq
+group=dnsmasq
+pid-file=/var/run/dnsmasq.pid
+resolv-file=/etc/resolv.myfile
+
+Restart the dnsmasq service and test 
+Dig www.pluralsight.com @localhost 
+
+——————————Done with DNSMASQ————————————— 
+
+—————— Will look at below topics ————
+/etc/nsswitch.conf. - this file has steps on how name resolution will be carried out. 
+     /etc/hosts
+     /etc/resolv.conf 
+Using dig, nslookup and host
+Using Perl and python to create bespoke tool
+
+
+—————Client tools — /etc/resolv.conf is often overwritten by Network Manager ————— 
+
+CentOS - we can turn this off by NM_MANAGED=no 
+Ubuntu - /etc/network/interfaces 
+
+The Name Service Switch (NSS) configuration file, /etc/nsswitch.conf, is used by the GNU C Library and certain other applications to determine the sources from which to obtain name-service information in a range of categories, and in what order. 
+
+
+DHCP means dynamic host configuration protocol . There are multiple potential points of failure during the DNS lookup process such as at the system performing the lookup, at the DNS cache, or on an external DNS server.  Here are steps - 
+
+1. Lets understand ‘host’ section of /etc/nsswtich.conf first . Default entry in that file is 
+hosts:      files dns myhostname
+
+
+Essentially this means that host name resolution will be performed in the order specified, left to right. First files will be checked, followed by DNS. So this references the local /etc/hosts file which contains static host name to IP address mappings. This file takes priority over any DNS resolution, any changes to the file will be placed straight into the DNS cache of that local server. Below is an example line of configuration from /etc/hosts
+1.1.1.1     google.com
+
+As this entry is in our host file locally, if we try to reach google.com our local machine will think that 1.1.1.1 is the correct IP address of google.com and will not perform a DNS lookup. This is demonstrated below by trying to ping google.com, DNS is not consulted as there is a hosts file entry which takes priority.
+[root@centos ~]# ping google.com
+PING google.com (1.1.1.1) 56(84) bytes of data.
+
+If there is no entry in the hosts file DNS will be used next as per /etc/nsswitch.conf. The servers used for DNS resolution will be specified in the /etc/resolv.conf file, below is an example configuration of this file.
+nameserver 192.168.0.1
+
+
+In this case all DNS queries of our system will go to the DNS server at 192.168.0.1. Other secondary and tertiary DNS servers can also be specified here as backups.
+
+———————— Testing DNS ———————— 
+For DNS resolution to succeed to 192.168.0.1, the DNS server at 192.168.0.1 will need to accept TCP and UDP traffic over port 53 from our server. A port scanner such as the nmap tool can be used to confirm if the DNS server is available on port 53 as shown below.
+
+nmap - This command is for Network exploration tool and security / port scanner
+
+-sU — This switch is for scan UDP ports and -sT is for TCP port scan
+
+[root@centos ~]# nmap -sU -p 53 192.168.0.1
+Starting Nmap 6.40 ( http://nmap.org ) at 2015-08-26 15:22 AEST
+Nmap scan report for 192.168.0.1
+Host is up (0.00091s latency).
+PORT   STATE         SERVICE
+
+
+We can use dig or tcpdump to check our DNS server is responding or resolving domain name to IP address or not as shown below 
+
+[root@testing ~]# dig google.com
+
+; <<>> DiG 9.9.4-RedHat-9.9.4-18.el7_1.3 <<>> google.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 32536
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;google.com.                    IN      A
+
+;; ANSWER SECTION:
+google.com.             65      IN      A       216.58.220.142
+
+OR we can use TCPDUMP as below
+
+[root@testing ~]# tcpdump -n host 192.168.0.1
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 65535 bytes
+15:29:52.439222 IP 192.168.0.100.32811 > 192.168.0.1.domain: 8134+ A? google.com. (28)
+15:29:52.440153 IP 192.168.0.1.domain > 192.168.0.100.32811: 8134 1/0/0 A 216.58.220.142 (44)
+
+
+If above response is cache or authoritative, we can find it has aa there or not.. if it has aa then it is authoritative response and not cache repose
+[root@testing ~]# dig @NS1.GOOGLE.COM google.com
+
+; <<>> DiG 9.9.4-RedHat-9.9.4-18.el7_1.3 <<>> @NS1.GOOGLE.COM google.com
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3477
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;google.com.                    IN      A
+
+;; ANSWER SECTION:
+google.com.             300     IN      A       216.58.220.142
+
+
+While the A record returned is the same in this instance, note that in this dig response we now have the “aa” flag in the header which represents that this is an authoritative answer and is not a cached response. If we run this same dig command again, the 300 second TTL that was returned in the answer section will continually state that the TTL is 300 seconds as the response is authoritative.However if we were to run this dig without specifying @ns1.google.com we would be querying our 192.168.0.1 DNS server which is not authoritative for the google.com domain, after the first result the record will be cached locally. This can be confirmed by running the dig command again, as the TTL value will drop down until it reaches 0 and is removed from the cache completely.By querying the authoritative name server directly we ensure that we are getting the most up to date response rather than a potential old cached response from our own local DNS server or local DNS cache.
+
+—Alternatively , if we use Ubuntu then there is file called /etc/network/interface , if we add entry for eth0 there and then do if down eth0 and ifup eth0 then system will automatically add name server entry into /etc/resolve.conf which may have only 127.0.0.1 entry earlier , which will now show two entry including entry for eth0 IP address which is DNS server that configured on port 53. We can manually also add DNS ip into /etc/resolv.conf but eveytime network manager is going to overwrite that entry, so our DNS resolution will not work so better let it drive from auto entry from /etc/network/interfaces option .
+
+
+——— Testing commands - 
+nslookup -querytype=a pluralsight.com           —here a means address record 
+
+If we wish to look up nslookup on specific server then try interactive mode as below
+
+Nslookup            - hit enter 
+> Server 8.8.8.8
+> Default server : 8.8.8.8
+> Address: 8.8.8.8#53
+> set type=mx
+> pluralsight.com 
+
+
+——————Scripting our own code to resolve the names  , this scripts are useful to debug any issues ——————Perl example below ———
+yum install perl-Net-DNS
+
+We need above DNS module. 
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Net::DNS::Resolver;
+
+my $hostname;
+print("Enter hostname: ");
+chomp($hostname = <STDIN>); 
+
+my $resolver = Net::DNS::Resolver->new(
+      nameserver => [qw(8.8.8.8)],
+);
+my $query = $resolver->search($hostname);
+if ($query) { 
+     foreach my $record ($query->answer) {
+          next unless $record->type eq "A"; 
+          print("Found Record: " . $record->address . "\n");
+     }
+}
+
+Now run above script as shown below - 
+[root@ispuncentos ~]# ./perltext.pl 
+Enter hostname: www.pluralsight.com
+Found Record: 52.32.242.123
+Found Record: 54.68.188.121
+
+Install python3-dnspython from line below
+https://centos.pkgs.org/6/repoforge-i386/python-dns-1.5.0-2.el6.rf.noarch.rpm.html
+
+#!/usr/bin/python3
+import dns.resolver
+resolver = dns.resolver.Resolver()
+answers = resolver.query("www.cnn.com", "A")
+for answer in answers:
+        print(answer)
+
+Then run above code using python <nameof above file> 
+It will output IP address of cnn.com
+
+——————————————— Extending DNS to Host zones - Agenda topics————————————— 
+1. Adding zones to the named.conf
+2. Forward lookup zones — This is our db.example file below
+3. Reverse lookup zones — This is our db.10.0.2 file below 
+4. Generating resource records —— This is $GENERATE command to add more web addresses in forward and reverse zone
+5. Testing the zones — use command —> host mail.example.com  (which is our Pointer or PTR record ) to see if it works or not.
+
+—————Adding zones to the named.conf——————
+
+Go to Ubuntu —> /etc/bind and add below lines to named.conf.local file 
+
+Zone “example.com” IN {            —here IN means internet
+type master;                             — this means master server meaning read/write possible 
+file “db.example”;                     - this file will be created under /var/cache/bind directory 
+allow-update { none; };
+};
+
+Zone “2.0.10.in-addr.arpa” IN {     - this is for reverse zone 
+Type master;
+File “db.10.0.2”
+Allow-update { none; };
+};
+
+Above file changes can be checked using named.checkconf command. If no error, there is no syntax error in named.conf.local file code
+
+Now lets add datafile 1 block as below - 
+
+$TTL 3h                            —time to live is 3 hours so that there will be no pressure on DNS server . Every record stays valid for 3 hours.
+$ORIGIN example.com.      —dot at the end means it can go unto root to get the data. $origin specify default value to put in. 
+example.com. IN SOA master.example.com root.example.com.  — see every example.com is followed by dot at the end. IN means internet and SOA means, we need this authoritative response (meaning if master server cannot resolve then it will go out to other server to get the resolution of domain name) . Here root.example.com means root is user name and instead of using @ symbol, we are using . and then server name which is example.com , we can also substitute that line with below line 
+@ IN SOA master.example.com. root.example.com.
+
+( 
+	2015112101 ; serial      —This entry is for slave server.. 2015 is year, 1121, month day and 01 is sequential number of change that we are making (version management). We use this timestamp to indicate the changes we make each day.
+          8h ; Refresh 
+          4h ; Retry
+	1w ; Expire
+	1h  ; Negative TTL 
+) 
+
+
+Now second datafile 2  block as follows - 
+
+example.com.  	 IN NS master.example.com.     — we could have used @ instead of example.com.
+Master 		 IN A 10.XX.30.30                   — master server
+gw                       IN  A 10.XX.31.1			—Gateway server 
+mail 			IN A 10.XX.31.2 			— Mail server 
+; Aliases                    					— this is comment line in code 
+Ns1 			IN CNAME master.example.com. 
+; Mail Servers 						— this is comment line in code 
+example.com.	IN MX 5 mail.example.com. 			—here 5 is preference setting for using mail server 
+
+—> We can combine both the blocks ( NAMES SERVER block and Start of authority SOA block ) above into db.example file at /var/cache/bind location . Once db.example file is created, 
+We can check the syntax as follows
+
+named-checkzone example.com db.example 
+
+———Reverse lookup zone datafile 3 below - 
+
+$TTL 3h
+$ORIGIN 2.0.10.in-addr.arpa.
+2.0.10.in-addr.arpa. 	IN SOA master.example.com.
+root.example.com.   ( 
+	2015112101 ; serial 
+	8h ; Refresh 
+          4h ; Retry
+	1w ; Expire
+	1h  ; Negative TTL 
+) 
+
+Now datafile4 below
+
+2.0.10.in-addr.arpa. 	IN NS master.example.com.
+1				IN PTR gw.example.com. 		— PTR meaning pointer records
+2 				IN PTR mail.example.com.
+4				IN PTR master.example.com.
+
+Here 1, 2, 4 are more like a sequential numbers.
+—————
+—> We can combine both the blocks ( NAMES SERVER block and Start of authority SOA block ) above into db.example file at /var/cache/bind location . Once db.example file is created, 
+We can check the syntax as follows
+
+named-checkzone 2.0.10.in-addr.arpa db.10.0.2 
+
+To check all zones, run below command 
+Named-checkconf -z 
+
+While testing, better to run sudo command as follows
+Sudo -u bind named-checkconf -z 
+Now restart the service with below command
+
+rndc reload 
+
+If we have around 100 more web addresses then we can configure that in db.example file by below command 
+example.com.  	 IN NS master.example.com.      
+Master 		 IN A 10.XX.30.30                   
+gw                       IN  A 10.XX.31.1			 
+mail 			IN A 10.XX.31.2 		
+$GENERATE	 101-200 student-$ 	IN 	A 	10.XX.31.$	 
+; Aliases       										— this is comment line in code 
+Ns1 			IN CNAME master.example.com. 
+; Mail Servers 										— this is comment line in code 
+example.com.	IN MX 5 mail.example.com. 			 
+————In case of reverse zone, we add below command
+$GENERATE 101-200 $ 	IN PTR student-$.example.com. 
+
+———————————— Trouble shooting DNS issues ———————————— 
+
+1. Understanding Resource Records
+2. DNS logging
+3. Changes to zones and DNS cache
+4. Permission , AppArmor and SELinux 
+
+———— Understanding Resource Records - CNAME ( Canonical names) 
+1.  Canonical names CNAME - 
+ns1 IN   CNAME 	master.example.com.           — cname is type of alias . Here we have ns1 record . So here ns1 record is pointed to canonical name master.example.com. and IN stands for internet . So in between ns1 and master.example.com values.
+
+2. Multi-homed hosts - here for example, server web has 2 interfaces ( network cards are different so 2 IPs as shown below ) then we can have two resources as shown below. DNS will sort these records and assign the record that is on the network. If you are not on the same recored then it will assign records in a round-robin. You may also assign administrative records so you can ping the correct interface. 
+
+web  	 IN 	A 	10.0.2.10
+web  	 IN	A	10.0.3.10 
+web2	 IN	A	10.0.2.10        —This record we will use in next resource record 
+web3	 IN	A	10.0.3.10        —This record we will use in next resource record 
+
+
+3. TXT Resource Record - 256 character text can be stored as TXT resource records. These can be for any purpose but often relate to administrative information . This is like we are storing some info about that network .. so is it network office or network backbone or something else. 
+
+web2 		IN 	A 	10.0.2.10
+web3		IN	A	10.0.3.10 
+web2		IN	TXT	“Network: Office1”
+web3		IN	TXT	“Network: Backbone”
+
+—— Remember to put trailing dot at the end of value for $ORIGIN . It then gets appended to the name as shown below
+$ORIGIN example.com.
+ns1 		IN	CNAME	master.example.com ——this will not become master.example.com.example.com 
+
+——Remember we can use @ notation to reference value specified in $ORIGIN value. So example.com can be replaced with @ 
+
+Default log info is at /var/log/messages or /var/log/syslog. However we can set logging configuration to our own log files as follows . Donot put all log data into /var/ folder. Below code can go under /etc/bind/named.conf.option file.
+
+logging { 
+  channel bind_log { 
+       File “bind.log” version 3 size 10m;   —this is out log file and parameter of file
+       severity warning;                           — this means log only warning messages        
+};  
+    category default { 
+	bind_log;
+    };
+}; 
+
+Now reload rndc using below command , then you will see bind.log file under /var/cache/bind place.
+rndc reload 
+
+We can set up query login as follows- 
+
+rndc querylog 
+rndc status           —this will check the query log status
+
+With the querylog, we can analyze client requests into syslog or messages file under /var/log folder. Or bind_log file which we created at named.conf.option file above. 
+
+—————— How to use rndc tool —————
+
+Sudo -u bind rndc reload  — this will reload both config and zones files using bind user 
+Sudo -u bind rndc reload example.com   —— this will reload just example.com zone file 
+
+Sudo -u bind rndc flush    — this will clear the cache 
+Sudo -u bind rndc querylog     — this will toggle on and off query log category 
+Rdnc retransfer example.com     — this is to retransfer zone from master to slave server
+
+————————————— DNS replication ———————
+1. Zone transfer 
+2. Configure slave server or secondary DNS server 
+
+————Zone transfer — 
+
+DNS are replicated by means of zone transfer so that we can use secondary sever to do DNS server. Below command can be used to transfer zone to designated server only. Slave servers use the zone transfer mechanism to replicate the zone at the in interval value from the SOA record. Replication only takes place if the serial number has been incremented . 
+
+Fire zone from master to slave using below command at slave server. Make sure firewall on master server is disabled for port 53 or whichever we are running named/bind9 server. 
+
+Dig axfr example.com @10.0.2.4     
+
+— Now when we configure named.conf file on slave server , we can add same code as master but on slave side, we will put IP of master server which in our example Ubutnu is out master server .  In this example, we plan to use ubuntu as master and centOS as slave .In CentOS, we will see below file structure at /var/named/ .. So here slave folder is already there. 
+
+data  dynamic  named.ca  named.empty  named.localhost  named.loopback  slaves
+
+—Now edit /etc/named.conf at CentOS slave server and add below code for zone 
+zone "example.com"  IN  {
+         type slave;
+         file "slaves/db.example";
+         masters { 10.XX.30.30; };
+};
+
+zone "2.0.10.in-addr.arpa" IN {	
+         type slave;
+         file "slaves/db.10.0.2.in-addr.arpa";
+         masters { 10.0.2.4; };
+};
+
+Now restart the service at CentOS using systemctl restart named
+We should see db.example files at /vasr/named/slaves folder , that means all zones files are transferred from master to slave server . Now we need to add slave server or second sever (which is only read copy) into zone file in master server so that we can start utilizing secondary or slave server for IP resolution. 
+So make below changes to master zone file.
+
+$TTL 3h
+$ORIGIN example.com.
+@ IN SOA  master.example.com.  root.example.com. ( 
+         2015113001	; Serial                — change timestamp here for next version 
+         8h 			; Refresh
+	4h			; Retry 
+	1w 			; Expire 
+	1h			; Negative TTL 
+) 
+IN 	NS	 master.example.com. 
+IN	NS	 slave.example.com.
+master	IN	A	10.XX.30.30
+gw                       IN  A 10.XX.31.1			 
+mail 			IN A 10.XX.31.2 	
+Slave 			IN A	10.XX.20.187
+$GENERATE	 101-200 student-$ 	IN 	A 	10.XX.31.$	 
+; Aliases       										— this is comment line in code 
+ns1 			IN CNAME master.example.com. 
+ns2			IN CNAME slave.example.com.
+;  Text Descriptions 
+master  IN	TXT 	“DNS master for example”
+slave 	   IN	TXT	“DNS secondary for example”
+; Mail Servers 										— this is comment line in code 
+example.com.	IN MX 5 mail.example.com. 	
+
+——below is reverse file 
+$TTL 3h
+$ORIGIN 2.0.10.in-addr.arpa.
+2.0.10.in-addr.arpa. 	IN SOA master.example.com.
+root.example.com.   ( 
+	2015113101 ; serial 
+	8h ; Refresh 
+          4h ; Retry
+	1w ; Expire
+	1h  ; Negative TTL 
+) 
+2.0.10.in-addr.arpa. 	IN NS master.example.com.
+1				IN PTR gw.example.com. 		— PTR meaning pointer records
+2 				IN PTR mail.example.com.
+4				IN PTR master.example.com.
+15 				IN PTR slave.example.com.
+$GENERATE 101-200 $ 	IN	PTR student-$.example.com.
+
+
+Once above two files are updated then we can forcefully sync up these changes to slave or secondary server as follows
+rndc retransfer example.com 
+
+Here secondary sever above is cache only DNS server , Certain DNS servers, known as caching-only servers, simply perform queries, cache the answers, and return the results. They are not authoritative for any DNS domains and do not host any zones. They only store data that they have cached while resolving queries.
+
+
+———————— DNS security —————
+1. Using ACL ( Access control list ) 
+2. Using TSIG ( Transaction signature) - here we can secure DNS messages. Authentication and message integrity 
+3. Using DNSSEC to sign zones 
+
+— — ——— Using ACL - 
+1. Zone transfer ACL - Using simple ACLs , we can control zone transfer in a similar way to the allow-query directive. This does not provide authentication or message integrity 
+
+allow-transfer { 10.XX.20.187;} ;  # add this in master server under /etc/named/named.conf.local file in ubuntu server, here this ip is slave IP  10.XX.20.187
+allow-transfer { none; } ;             # add this to slave server , here transfer should happen from master to slave and nowhere from there so use none
+
+After this change, run rndc reload 
+
+—— Using TSIG ( Transaction signature) -
+Install haveged service to generate entropy , random data when generating keys . Using dnssec-keygen , we can create the key pair on master server. This key needs to be generated at /etc/bind folder
+
+apt-get install -y haveged
+
+Cd /etc/bind
+Dnssec-keygen -a HMAC-MD5  -b 128 -n HOST master-slave.example.com      — here we can create host or zone keys.. so we use HOST here since this is for host. Now we will create configuration file on master file that references this key. The secret comes from generated public key. Now we have to reference this configuration file into named.conf at the end.
+
+cat > transfer.conf <<END
+key master-slave.example.com. { 
+	algorithm hmac-md5; 
+	secret “hdbgt6573/354s7hiuy==“;            — this secret key comes from public key
+};
+END
+
+echo “include /etc/bind/transfer.conf”  >> named.conf
+
+Now that we have key, alter earlier ACL line in master server so instead of using slave server IP address, we will use this generated key.
+allow-transfer { key master-slave.example.com. ; } ;    # this is at master server.
+
+
+
+
+
+
+
+
+
 
 
 
