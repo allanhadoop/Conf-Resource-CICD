@@ -1,0 +1,304 @@
+Django 
+
+1. Model - represents data , Maps model classes to DB tables
+2. Template - Depending on HTTP requests, it gets data from model and generate HTTP presentation page for client 
+3. View - Takes HTTP request and returns response..
+
+
+
+In MVC world ( mode, view , controller) - Template is called View and View is called Controller.
+
+—— Installation steps 
+1. Install Python
+2. Create a virtual environment 
+3. Install Django
+
+If there are multiple python projects going on in same OS then it is better to have separate environment 
+
+Python3 -m venv <name of environment>.  — here it will create new python environment -m means 
+venv (environment module) 
+
+This will create bin and other folders. Under bin, there will be activate and pip files
+
+Now activate environment which will bring name of the environment at the front of command prompt 
+   . <name of environment> /bin/activate 
+
+Once you are in the environment, lets install django using pip . This will install Django only in virtual 
+Environment 
+
+Pip install Django.  -if this is permission denied error then own that virtual environment as follows
+
+Sudo chown -R your_user_name:your_user_name <path to virtual environment> 
+
+If you wish to install specific version of Django then use pip install Django==1.9 
+
+————————
+Starting new Django project and simple web application 
+
+Under original Django folder where we have place environment , create new project 
+
+Django-admin start project <name of project>  — This will create project folder and manage.py into main original Django folder. This manage.py is used to run Django development web server which will run our python code inside the environment . So we always need to run this .. using python manage.py runserver <port number> 
+
+By default Django runs on 8000 but it can be changed to new port is 8000 is busy.
+
+After running above run server command, it will create new DB called db.sqlite3. 
+
+——————Building simple view or url 
+Now open pycharm on desktop and attach to this new django environment , also set project interpreter to project name
+Add new sample.py under project folder.. make sure we refer to this bin/python to pull all python library else some of the modules used in url.py or wsgi.py will be marked red. 
+
+Now add for example. views.py with simple python HttpResponse code .. and refer this views.py into url.py by importing it .. see code for more details
+
+>>>>>>>code here 
+
+Now in summary - 
+When we type 127.0.0.1/8000/welcome —> THIS SENDS GET HTTP/1.1 request to Django server. 
+Once Django server received request from browser, it check url pattern . It has welcome at the end.. 
+It then looks into url.py and views.py to pick right content and send request to client/broswerr 
+
+So its all driven by url.py and views.py will generate response. url.py handles requests and it has mapping to help Django sever where to find the response for given url request 
+
+In MVC world, these views.py is called “controllers”
+
+
+
+———————————— Models and Migration — 
+
+So model is python classes which deals with database tables . Each object is a row in the table. 
+Anytime we interact with database tables, we use python classes. 
+
+Migration helps to bring most up to date code to reflect into database tables.DB structure needs to be in sync with newly modified code , this is done by 
+Migration .So if we change python model class then we run migration code to sync up that code with DB structure. 
+
+
+———————————What is Django App —————
+This is not same as mobile app. This is python package which has its own models, views and templates. 
+——So Django environment can have multiple Django project and each Django project can be separate multiple python packages(or Django Apps) 
+There are pre-installed app already in Django under setting.py such as admin, message, auth etc … so each of these app is associated with python 
+Class and respective code. 
+
+But there are always some additional migration required for the newly updated code in other apps. But if you want to see which migrations are waiting or updated code of class is not reflected in DB then use below command
+
+Python manage.py showmigrations
+
+To run these pending migration , execute below command
+Python manage.py migrate 
+
+After above command, database will show all the updated tables. 
+
+————————Creating Django App ——
+Below command starts from place where we have manage.py  because manage.py is the key code which does migration , create app etc everything within the Django environment . 
+
+Python manage.py startapp <name of the app>           —this command will create Django app
+
+Above command will create app with following folders - 
+Admin, app.py, __init__py, migration, model.py, test.py and views.py 
+Now add app name under settings.py under INSTALLED_APP
+
+Now we can add code under model.py using standard class models. 
+>>>>>>>See code in attachment 
+
+After adding code , lets see how this code will update database by using Migration aspects 
+
+To match underlying table to match model class, we run command 
+Python manage.py makemigrations 
+
+This command will create python code under 0001_initial.py file under migration folder. This python code will create necessary tables for the model code
+
+Now we need to create SQL statement for this python code which will be responsible to create database tables in DBSQLlite2 database. This SQL created using below command
+
+Python manage.py sqlmigrate <name of app> <number of migration file which is 0001 in this case>
+
+Here you will see SQL statements and also index being created . 
+Now go ahead to run migration using command below
+
+Python manage.py migrate — This is final step to create tables as per model code 
+
+
+When we create class, we always need to use models superclass. Any class that we create referenced to models superclass is mapped to a database table (named after class name) . Example of code below - 
+
+from django.db import models 
+Class <name of table>(models.Model):
+     <name of field> = model.IntegerField() 
+     <name of the field> = model.IntegerField() 
+
+
+——here is migration workflow steps — 
+Step 1. Change model code
+Step2 - Generate migration script
+   Python manage.py migration
+Step 3 - To show all migrations 
+   Python manage.py showmigrations 
+
+Step4 - Show SQL for specific migration 
+   Python manage.py sqlmigrate appname migrationame
+
+Step 5- Run migration 
+   Python manage.py migrate
+
+
+——————Summary till now ———
+
+Apps - 
+	1. Packages with models, views etc 
+	2. Manage.py startapp appname 
+	3. Add app to INSTALLED_APP in python code under admin.py file
+
+Models - 
+ 	1. Classes inherit from models.Model 
+	2. Django Field classes
+
+Migration - 
+	1. manage.py makemigrations
+	2. manage.py migrate 
+
+————————— Day to day life of developer - 
+1. First new fields is added in class
+2. Then run python manage.py makemigrations
+3. After above command, new changes will show up code in Migration folder in python code 
+4. Now run migration using python manage.py migrate 
+
+
+———————————Admin site and model API ——————
+
+Django provides auto-generated UI to edit your data. First we need to register our model with the admin site before using UI and then adding a super user to log in. We will then build model API to update/ create/save data etc using python scripts.
+
+
+Under admin.py add below code to register your classes ( which are tables in DB ) 
+
+From .models import <name of class>
+Admin.site.register(<name of class>) 
+
+Now, lets create superuser by below command
+Python manage.py createsuperuser
+
+
+————————Documentation to decorate admin site, Create a webpage etc  - https://goo.gl/TacNMS 
+
+We can open python shell within Django environment as below 
+
+Python manage.py shell 
+
+So example we created two classes Game and Move. We then added some data to Game class in front end web. Each row in the web creates id as a primary key in the Game table. So we can retrieve that as follows 
+
+>>  from Game.models import game, move
+>>  Game.objects.all()      — this will force Django to load Game class 
+>> g=Game.objects.get(pk=1)      —this will get the first row from Game class or table 
+>> g.id 
+>> 1 
+
+So basically we are using Python shell to interact with the database instead of using console or web page .
+
+Here is link to API documentation - https://goo.gl/OD7B06 
+
+
+————————— Django Model Template View ——————
+
+Templates - 
+	1. Template language syntax
+	2. Calling template from view 
+	3. Sending data from view to template 
+	4. Displaying data using template 
+
+Static Content - 
+	1. Styling with CSS
+	2. Using static content in template 
+	3. Shared layout - Template inheritance 
+	4. Templates and static outside Apps
+
+
+—————————Create new app player - ——————
+
+Python manage.py startapp player
+
+Now go to pycharm and add new folder called Template under player app and below template , add one more folder called player .
+Under player folder, create new html file called home.html 
+
+So lets say we have below sample html code 
+<head> 
+    <title>    welcome </title>
+</head>
+<body>  <h1> welcome to home page </h1>  </body>
+
+Now we need to update views.py to render this html page instead of showing them so earlier we had below code in views.py which was basic to just send HTTPresoponse
+
+From django.http import HTTPRESPONSE 
+
+Def home(request):
+	return Httpresponse(“hello world”)
+
+———but now we have new html file under player folder , we need to render that page by using below code / syntax 
+
+From django.shortcuts import render 
+
+Def home(request):
+	return render (request, “player/home.html”) 
+
+———— 
+Now we may have several pages just like home page so all those can be created under new file called url. Create new PYTHON file (not html file) under player folder called urls.py
+
+
+So now here scenario - we wish to access home page from browser . Earlier in our project urls.py code, we had below code -
+
+From django.conf.urls import url, include 
+From django.contrib impair admin 
+Url pattern = [
+   url(r’^admin/‘ , admin.site.urls),        — so here we were using localhost:7000/admin/home to access home page but now our home page is moved to player—>urls.py file so now we need below line to access it .  
+   url(r’^player/‘ , include(‘player.urls’)),      — so now system will check ‘localhost:7000/player/’ first then it will go to include player.urls.py and there we will have below code to allow access to page ends with home word using $ sign as shown below
+]
+
+
+————Code under views.py ———————which takes control to home page of app folder player———
+From django.shortcuts import render 
+
+Def home(request) : 
+Return render(request, “player/home.html”) 
+
+
+—————code under player.urls.py————
+From django.conf.urls import url 
+From .views import home 
+
+urlpattern [
+   url (r’home$’ , home)      ——this will now call home view under views.py and render that content 
+] 
+—————before opening localhost:7000/player/home — donot forget to add player app under “INSTALLED_APP” section in settings.py file 
+
+——So what happened here is — steps below
+1. We modified url.py file of main project folder because that is where browser looks first
+2. Then we gave include method into step2 to reference to urls.py file of player app. So thats is how system goes from project url file to app url file 
+3. Now once system is in app url file, then it gives reference to home page created under views.py in app folder where we have home function which renders home html page
+
+Project (url.py) —> reference to app (urls.py) —> references to views.py in app —> which references to home.html page created under template folder—under player folder below that..
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
