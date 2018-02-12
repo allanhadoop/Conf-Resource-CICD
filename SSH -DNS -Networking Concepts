@@ -785,6 +785,81 @@ echo “include /etc/bind/transfer.conf”  >> named.conf
 Now that we have key, alter earlier ACL line in master server so instead of using slave server IP address, we will use this generated key.
 allow-transfer { key master-slave.example.com. ; } ;    # this is at master server.
 
+Run below command to ensure no errors in syntax 
+Sudo named-checkconf 
+
+———— Using TSIG ( Transaction signature) -Below procedure is for CentOS slave.
+
+We need to transfer transfer.conf file from master to slave server.  And then use bellow code where 10.0.2.4 is the master server IP address. So now instead of using IP addresses of all slaves servers, we are using keys which is much better solution . 
+
+Dig axfr example.com @10.0.2.4 -k transfer.conf 
+Now add below block of code into /etc/named.conf file - 
+
+Include /etc/transfer.conf
+Server 10.0.2.4 {                                                     — master server IP address 10.0.2.4
+	key { master-slave.example.com. ; };
+}
+
+Systemctl restart named
+Rndc retransfer example.com 
+
+———————— Signing DNS zones by creating zone signing key ———— 
+Add below validation code into /etc/bind/named.conf.options.  — this to be added at master server 
+
+Dnssec-enable yes; 
+Dnssec-validation yes; 
+Dnssec-lookaside auto; 
+
+Add below at /var/cache/bind directory 
+
+Dnssec-keygen -a NSEC3RSASHA1 -b 2048 -n ZONE example.com    — This will create 2 keys (public and private ) 
+
+
+Now we will issue / create key signing key as follows - 
+
+Dnssec-keygen -f KSK -a NSEC3RSASHA1  -b 2048 -n ZONE example.com  — This is to create key signing key , KSK means key signing key 
+
+Now add public keys to the zones by simple for loop as below . This code goes to db.example - 
+For k in $(ls K*.key ); do 
+   Echo “\$INCLUDE $k”  >> db.example
+Done 
+
+Now sign zone using some random number like 5674 
+
+Dnssec-signzone -3 5674 -A -N INCREMENT -o example.com -t db.example  — - Here the increment is for zone serial number  versioning 2015113001
+
+Now finally reference the signed zone as follow 
+
+File “db.example.signed”  will be generated.. So now go to /etc/named.conf.local file code and instead of using db.example, use db.example.signed file name under zone “example.com” code block 
+
+Now check named.checkconf to ensure no syntax error .  And then restart service and rndc reload. Now check below command which will get us digital signature of that name server similar to co.uk domain. (Try dig +short  +dnssec NS co.uk , you will get Digital sign as a result ) 
+
+dig +short +dnssec NS example.com 
+
+
+————————— Power DNS as alternative to Bind server —————— 
+
+There are 3 alternatives to bind server - 1. DNSMasq  2. DjbDNS     3. PowerDNS
+
+DNS Recursion — Recursion is used by name-servers to query other servers for records they dont have. BIND does not separate the two but PowerDNS does.
+If we use PowerDNS recursor which will allow the system to work as a Caching only server. This is lightweight and uses less resources than BIND. For that use below command.
+
+Installing PowerDNS and Mysql — 
+Apt-get install mysql-client mysql-server 
+Apt-get install pdns-server pdns-backend-mysql 
+
+sudo rm /etc/powerdns/pdns.d/pdns.simplebind.conf      — remove this, else it will clash with powerdns
+Sudo service pdns restart
+
+We are using mysql instead of storing IP into flat files.. By default powerDNS , recursion is turn off so if you want to use it , turn on in the confiure file and put  8.8.8.8 which is google DNS servers
+
+
+———————————————Most of the commands and details are reference from plural sight course at 
+https://app.pluralsight.com/player?course=linux-managing-dns-servers-lpic-2&author=andrew-mallett&name=linux-managing-dns-servers-lpic-2-m10&clip=2&mode=live
+
+
+
+
 
 
 
