@@ -1,0 +1,319 @@
+———— Apache on CentOS ——Below content is learned from -  https://app.pluralsight.com/player?course=apache-web-server-install-config&author=chris-brown&name=apache-web-server-install-config-m2-install&clip=1&mode=live
+
+httpd  is  the Apache HyperText Transfer Protocol (HTTP) server program. It is designed to be run as a stand‐ alone daemon process. When used like this it will create a pool of  child  processes  or  threads  to  handle  requests.
+
+> yum install httpd 
+> chkconfig httpd on 	— chkconfig - updates and queries runlevel information for system services
+> systemctl is-enabled httpd.service		— This will tell is httpd is enabled at runtime boot or not 
+
+
+> lsof -I | grep httpd 			— This is similar to netstat in Ubuntu system 
+
+Out put of above command will show total 9 processes are running.. we will find out why in next section shortly 
+d     2170     root    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2171   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2172   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2173   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2174   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2175   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2186   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2187   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+httpd     2188   apache    4u  IPv6  27239      0t0  TCP *:http (LISTEN)
+
+To improve response time, Apache manages a pool of “Spare” server processes. This number controls the size of the pool 
+Startserver - 8 
+MinSpareServers - 5
+MaxSpareserver - 20 
+Sever limit = 256
+Max clients = 256
+
+
+
+———— Apache is modular architecture . 
+Meaning it has modules that we can install and use . Modules directories are located at /usr/lib64/httpd/modules. On Apache side , we have below sections 
+1. 	Core
+2. 	Prefork 
+3.	http_core
+4. 	mod_so 
+
+Configuration file is located at /etc/httpd/conf/httpd.conf . Apache listens on port 80 . User and group should be Apache. We can also specific which interface Apache can listen on. By default it will listen on all network interfaces. You can have it listen to only internal network interface if you like. Apache also loads most of the modules at the time of installation . 
+
+—— Settiing Document root — 
+DocumentRoot defines the top-level director of the web site 
+http://example.com/foo.html    		— here foo.html is the URL 
+/var/www/html/foo.html 			— foo.html file will be served 
+DocumentRoot 	“/var/www/html”	— Defined in the config file. 
+
+
+——  Containers - 
+
+Container directives use XML-style opening and closing tags . As shown in the example below . These directives only “kick-in” for files within the specified directory . 
+<Directory “/var/www/cgi-bin”>
+	AllowOverride None
+	Options 	None 
+	Order allow , deny
+	Allow from all
+</Directory>
+
+Other containers are <Location> and <Virtual host> . Similarly , for multiple threads, we can use worker directory module . 
+———By pressing / in VI editor , we can search for keywords. 
+—— — To hide all comment Iines from httpd.conf files , use below command  
+> grep -v '^#' /etc/httpd/conf/httpd.conf | less
+
+— — Lets create new page to render on Apache server 
+Create index.html fill at document root at /var/www/html and also upload images here 
+Now makes sure user and group is changed to Apache using 
+Chown -R apache:apache * 
+
+
+————— Configuring Virtual Hosting ——— 
+
+Virtual hosting is a method for hosting multiple domain names ( with separate handling of each name) on a single server ( or pool of servers) . Each head office has east and west branches of libraries. So Apache is acting as virtual hosting to support two domains ( east and west branch) . 
+
+——  Name based virtual hosting 
+
+See architectural diagram ( name based virtual hosting) . Here two names or domains will have same IP address but each will point to separate document root folder. Example /var/www/html/east and /var/www/html/west . So in this named based virtual hosting,. Apache relies on host name to direct request to correct document folder. 
+Example - 
+east.example.org 		— this is compared against entry in <Virtual host> container in the configuration file before Apache goes to east document root folder to serve request
+
+——  this is how <Virtual host> container looks like - 
+NameVirtualHost	*:80
+<VirtualHost 	*:80>
+	ServerName	east.example.org 
+	DocumentRoot	/var/www/html/east
+	ErrorLog	/var/log/httpd/east/error_log
+	TransferLog	/var/log/httpd/east/access_log
+</VirtualHost>
+<VirtualHost 	*:80>
+	ServerName	east.example.org 
+	DocumentRoot	/var/www/html/east
+	ErrorLog	/var/log/httpd/west/error_log
+	TransferLog	/var/log/httpd/west/access_log
+</VirtualHost>
+
+In practical scenario , both east and west will have entry in DNS but for now, lets use localhost as shown below 
+127.0.0.1	localhost
+127.0.0.1	east.example.com
+127.0.0.1	west.example.com 
+
+——— IP Based virtual hosting —— 
+See architecture diagram .. In addition to using separate IP , there are several ways to serve multiple sites from one computer 
+1. Run multiple instances of Apache 
+	- Each needs its own config file and different port number 
+2. Use multiple VMs 
+	- Each has its own IP address and port space and much larger memory footprints
+
+Example is at — https://httpd.apache.org/docs/2.4/vhosts/examples.html
+So here we are putting admin page under admin folder created under /var/www/html/east folder and this folder serves east.example.org site. 
+
+Listen 80
+
+# This is the "main" server running on 172.20.30.40
+ServerName server.example.com
+DocumentRoot "/www/mainserver"
+
+<VirtualHost 172.20.30.50>
+    DocumentRoot "/www/example1"
+    ServerName www.example.com
+
+    # Other directives here ...
+</VirtualHost>
+
+<VirtualHost 172.20.30.50>
+    DocumentRoot "/www/example2"
+    ServerName www.example.org
+
+    # Other directives here ...
+</VirtualHost>
+
+
+———————————— Configuring access controls ——— 
+
+1. Control access to parts of web site based on a user login 
+2. Control access to the site based on the identity of the client machine 
+3. Distribute access control directives throughout the site 
+
+—— - Control access to parts of web site based on a user login n — This will cover access to some website content to public , some to only members and some to admin folks only.. So website access is controlled here 
+
+So Index.html can be opened up to public, new page member.html can be opened up to members and admin.html can be opened up to admin folks. All three folders should be part of document Root folder under /var/www/html folder 
+
+So basically container restricts the scope of the access control rules to specific part of the site as shown below 
+<Directory  /var/www/html/ > 	— File under specific directory 
+<Files    “*.jpg” > 			— File matching wildcat character pattern 
+<Location /private> 			 — Matches against the path component of the URL (e.g. http://foo.com/private) 
+<Virtual Host *:80> 		— Matches request for a specific virtual host 
+
+
+—— — Controlling access based on User identity — 
+- Access to certain parts of the site can be restricted , this will require authentication and authorization of the user
+- User account info is kept in plain text file or DBM file or MySQL file 
+- Here we can place file containing user accounts directly into /etc/httpd/conf folder . They are managed by htpasswd command - 
+
+htpasswd  is  used  to create and update the flat-files used to store usernames and password for basic authentication of HTTP users. If htpasswd cannot access a file, such as not being able to write to the  output  file  or not being able to read the file in order to update it, it returns an error status and  makes no changes. Resources available from the Apache HTTP server can be restricted to just  the  users  listed  in  the files created by htpasswd. This program can only manage usernames and passwords stored in a flat-file.  It can encrypt and display password information for use in other types of data stores, though. To  use a DBM database see dbmmanage or htdbm.
+
+> htpasswd -m -c admin user1	— this will add user1 into -c ( file which is admin file ) with -m ( encrypted ) 
+> htpasswd -m admin user2	— this will add new user user2 to admin file which we can view 
+> cat admin 
+
+
+—— — Configuring accèss control — see below link for specific details 
+http://httpd.apache.org/docs/current/howto/auth.html
+
+<Directory 	/var/www/html/east/admin>
+	AuthType Basic 
+	AuthName	“Log in  as a admin” 
+	AuthUserFile /etc/httpd/conf/admin 	— we have stored admin file at this location 
+	Require 	validusers 			— we can supply list of users here 
+</Directory>
+
+——— Configuring access control based on client machine IP address 
+<Directory /var/www/html/east/admin>
+	order deny, allow 
+	deny from all 
+	allow from 192.xx.xx.xxx
+</Directory>
+
+.htaccess files should be used in a case where the content providers need to make configuration changes to the server on a per-directory basis, but do not have root access on the server system. In the event that the server administrator is not willing to make frequent configuration changes, it might be desirable to permit individual users to make these changes in .htaccess files for themselves. This is particularly true, for example, in cases where ISPs are hosting multiple user sites on a single machine, and want their users to be able to alter their configuration.
+
+It allows (some) configuration directives to be placed in the content folder they apply to. So when apache looks to server the browser request, it will pick up .htaccess at east folder and then another .htaccess file at admin folder. Below details we put into .htaccess file . Site administrator can determine what is allowed in a .htaccess file using AllowOverride as follows — 
+
+None		— This means nothing is allowed
+All		— Everything is allowed 
+AuthConfig 	— User authentication directives 
+FileInfo	— Various 
+Indexes	— Directives controlling the display of directory listings 
+Limit		— Directory controlling host access 
+
+
+Example - Allowoverride 	AuthConfig Indexes		— This means authconfig and indexes are allowed to override 
+
+—————— Creating secure connection with SSL — 
+
+—  Symmetric Cryptography 
+—  Asymmetric Cryptography 
+—  Digital signatures and SSL 
+— Configure Apache with SSL to serve a secure site ( https) 
+
+See architectural diagram for more better understanding. Apache uses mod_ssl module for SSL requirements . It includes mod_ssl.so package. Config file added to /etc/httpd/conf.d
+
+https://httpd.apache.org/docs/2.4/mod/mod_ssl.html
+
+This module provides SSL v3 and TLS v1.x support for the Apache HTTP Server. This module relies on OpenSSL to provide the cryptography engine.
+
+— Steps to create certificate and RSA private key for handshake — 
+> mkdir ssl 
+> openssl req -x509 -nodes - days 365 -newkey rsa:2048 -keyout /etc/httpd/ssl 	— Here x-509 is certificate type, 365 is days valid for , newkey means generate new key and keyout means put key into /etc/httpd/ssl folder. Rsa means asymmetric algorithm used for key 
+
+OpenSSL is a cryptography toolkit implementing the Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1) network protocols and related cryptography standards required by them. The openssl program is a command line tool for using the various cryptography functions of OpenSSL's crypto library from the shell.  It can be used for
+
+        o  Creation and management of private keys, public keys and parameters
+        o  Public key cryptographic operations
+        o  Creation of X.509 certificates, CSRs and CRLs
+        o  Calculation of Message Digests
+        o  Encryption and Decryption with Ciphers
+        o  SSL/TLS Client and Server Tests
+        o  Handling of S/MIME signed or encrypted mail
+        o  Time Stamp requests, generation and verification
+
+> openssl x509 -in apache.crt -text		— This will give text representation of the certificate 
+
+— Now install Apache mod_ssl module 
+> yum install mod_ssl 		— This will install apache module mod_ssl 
+> rpm -ql mod_ssl			— This will list files of module mod_ssl 
+
+ Now add below lines to configuration file generated by mod_ssl which is under /etc/httpd/conf.d/ssl 
+NameVirtualHost *:443
+<VirtiualHost *:443>
+DocumentRoot "/var/www/html/east""
+ServerName east.example.org:443			— This line should also be updated at top level configuration file located at /etc/httpd/conf/httpd.conf 
+SSLCertificateFile /etc/httpd/myssl/apache.crt		— here we have key certificate at myssl folder. 
+SSLCertificateKeyFile /etc/httpd/myssl/apache.key	— here we have kept private key at myssl folder 
+
+
+> systemctrl restart httpd  			— Now if we try to open https://east.example.org then browser will ask to confirm certificate issued by east.example.org and once it is confirmed then site will open . 
+
+———— Error , Access log and internal status information from server  —— 
+
+LogFormat syntax 
+
+> logformat  “%h %l %u %t “%r “  %>s  %b”   common 	— This is log format that Apache generates here , 
+
+%h means 	— Remote host 
+%l  means 	- Remote login name 
+%u means 	- User name (if authenticated ) 
+%t  means 	- Time stamp of the request 
+%r  means 	- The first line of request 
+%s means 	- HTTP response status 
+%b means 	- No. Of bytes returned 
+
+We use logformat with nickname for each log and custom log directive to reference the nickname . 
+CustomLog 	logs/referer_log myformat 
+
+——— Log file analysis tools - 
+1. Open source tool - 
+	- Analog 
+	- AWstats
+	- Webaliser 
+2. Proprietary tools 
+	- Sawmill 
+	- Splunk 
+
+—— Error log is in the file at /etc/httpd/conf/httpd.conf as below
+<VirtualHost *:80>
+        ServerName east.example.org
+        DocumentRoot    "/var/www/html/east"
+        CustomLog   /var/log/httpd/access_log_east common
+</VirtualHost>
+
+ExtendedStatus  on 
+— —Now update mod_status and mod_info modules code into this file as shown below block will capture server status and allow access to it from localhost 
+— Below is mod_info 
+<Location "/server-info">
+    SetHandler server-info
+    # Allow access from server itself
+    Require ip 127.0.0.1
+
+    # Additionally, allow access from local workstation
+    Require ip 192.168.1.17
+</Location>
+
+
+— Below is mod_status 
+<Location "/server-status">
+    SetHandler server-status
+    Require host 127.0.0.1
+</Location>
+
+—— Now when we visit page east.example.org we see below status under access_log_East file 
+10.xx.xx.xx - - [06/Mar/2018:23:20:52 -0500] "GET / HTTP/1.1" 304 -
+
+— If we try typing error site like east.example.org/zadsads which does not exists then we get below log 
+10.xx.xx.xx - - [06/Mar/2018:23:26:47 -0500] "GET /sdd HTTP/1.1" 404 201
+
+
+—— Now check server-status and server-info pages as below
+Https://east.example.org/server-status 
+Https://east.example.org/server-info 
+
+—— Additional Apache features 
+1. Indexing 
+	- Generate pretty index
+	- From directory content 
+2. Redirection 
+	- Aliasing and URL re-writing 
+3. Proxying 
+	- Forward request to the internet , cache	results 
+4. Language negotiation 
+	- Return results in a language the user can understand 
+5. Integration with Tomcat 
+	- Container for java servlets 
+
+
+
+
+
+
+
+
+
+
